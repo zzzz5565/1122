@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DevOperationMapper">
+
+    <resultMap type="DevOperation" id="DevOperationResult">
+        <result property="id"    column="id"    />
+        <result property="kkbh"    column="kkbh"    />
+        <result property="kkmc"    column="kkmc"    />
+        <result property="timeMin"    column="time_min"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="bmmc"    column="bmmc"    />
+    </resultMap>
+
+    <sql id="selectDevOperationVo">
+        select id, kkbh, kkmc, time_min, glbm, bmmc from dev_operation
+    </sql>
+
+    <select id="selectDevOperationList" parameterType="DevOperation" resultMap="DevOperationResult">
+        <include refid="selectDevOperationVo"/>
+        <where>
+            <if test="kkbh != null  and kkbh != ''"> and kkbh like concat('%', #{kkbh}, '%')</if>
+            <if test="kkmc != null  and kkmc != ''"> and kkmc like concat('%', #{kkmc}, '%')</if>
+            <if test="timeMin != null "> and time_min = #{timeMin}</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="bmmc != null  and bmmc != ''"> and bmmc = #{bmmc}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(time_min,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(time_min,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+    <select id="selectDevOperationLists" parameterType="DevOperation" resultMap="DevOperationResult">
+        select kkbh,kkmc,time_min,glbm,bmmc
+        from (
+        select kkbh,kkmc,to_char(create_time,'yyyy-mm-dd hh24:mi') time_min,
+        (select substr(glbm,1,6) from dev_tollgate d where d.kkbh=z.kkbh) glbm,
+        (select bmmc from frm_tms_department t where t.glbm =(select substr(glbm,1,6)||'000000' from dev_tollgate d
+        where d.kkbh=z.kkbh)) bmmc
+        from zddw_log z
+        <where>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and create_time >= to_date(#{params.beginTime}, 'yyyy-mm-dd')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                AND create_time &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd')
+            </if>
+            <if test="kkbh != null  and kkbh != ''"> and kkbh like '%' || #{kkbh} || '%'</if>
+            <if test="kkmc != null  and kkmc != ''"> and kkmc like '%' || #{kkmc} || '%'</if>
+            <if test="glbm != null  and glbm != ''"> and substr(glbm,1,6) = #{glbm}</if>
+        </where>
+
+        group by kkbh,kkmc,to_char(create_time,'yyyy-mm-dd hh24:mi')
+        )
+        order by time_min desc
+    </select>
+
+    <select id="selectDevOperationById" parameterType="Long" resultMap="DevOperationResult">
+        <include refid="selectDevOperationVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertDevOperation" parameterType="DevOperation" useGeneratedKeys="true" keyProperty="id">
+        insert into dev_operation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="kkbh != null">kkbh,</if>
+            <if test="kkmc != null">kkmc,</if>
+            <if test="timeMin != null">time_min,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="bmmc != null">bmmc,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="kkbh != null">#{kkbh},</if>
+            <if test="kkmc != null">#{kkmc},</if>
+            <if test="timeMin != null">#{timeMin},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="bmmc != null">#{bmmc},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDevOperation" parameterType="DevOperation">
+        update dev_operation
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="kkbh != null">kkbh = #{kkbh},</if>
+            <if test="kkmc != null">kkmc = #{kkmc},</if>
+            <if test="timeMin != null">time_min = #{timeMin},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="bmmc != null">bmmc = #{bmmc},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDevOperationById" parameterType="Long">
+        delete from dev_operation where id = #{id}
+    </delete>
+
+    <delete id="deleteDevOperationByIds" parameterType="String">
+        delete from dev_operation where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

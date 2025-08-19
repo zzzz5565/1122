@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.CarQueryDailyMapper">
+
+    <resultMap type="CarQueryDaily" id="CarQueryDailyResult">
+        <result property="id"    column="id"    />
+        <result property="yhdh"    column="yhdh"    />
+        <result property="xm"    column="xm"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="sj"    column="sj"    />
+        <result property="drzd"    column="drzd"    />
+        <result property="bs"    column="bs"    />
+    </resultMap>
+
+    <sql id="selectCarQueryDailyVo">
+        select id, yhdh, xm, glbm, sj, drzd, bs from car_query_daily
+    </sql>
+
+    <select id="selectCarQueryDailyList" parameterType="CarQueryDaily" resultMap="CarQueryDailyResult">
+        <include refid="selectCarQueryDailyVo"/>
+        <where>
+            <if test="yhdh != null  and yhdh != ''"> and yhdh = #{yhdh}</if>
+            <if test="xm != null  and xm != ''"> and xm = #{xm}</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="sj != null  and sj != ''"> and sj = #{sj}</if>
+            <if test="drzd != null  and drzd != ''"> and drzd = #{drzd}</if>
+            <if test="bs != null  and bs != ''"> and bs = #{bs}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and sj >= STR_TO_DATE(#{params.beginTime}, '%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                and sj &lt; DATE_ADD(STR_TO_DATE(#{params.endTime}, '%Y-%m-%d %H:%i:%s'), INTERVAL 1 DAY)
+            </if>
+        </where>
+    </select>
+
+    <select id="selectCarQueryDailyLists" parameterType="CarQueryDaily" resultMap="CarQueryDailyResult">
+        select yhdh, -- 用户代号
+               (select bmmc from trff_app.FRM_TMS_DEPARTMENT d where d.GLBM = t.GLBM) glbm,
+               xm, -- 姓名
+               sj, -- 查询时间
+               drzd, -- 当日最大查询
+               bs -- 高出全省日查询量倍数
+        from (
+                 select yhdh,xm,glbm,sj,max(dr) drzd,max(dr)/130 bs from(
+                       select yhdh,xm,glbm,to_CHAR(XRSJ,'yyyy-MM-dd') SJ,count(*) dr
+                       from trff_app.FRM_TMS_IMPT_DATA_ACCESS_LOG t
+                       where 1 = 1
+                       <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                           and xrsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+                       </if>
+                       <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                           and xrsj &lt; to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')+1
+                       </if>
+                       GROUP BY yhdh,xm,glbm,to_CHAR(XRSJ,'yyyy-MM-dd'))
+                 group by yhdh,xm,glbm,sj ) t where bs >= 2.5
+
+    </select>
+
+    <select id="selectCarQueryDailyById" parameterType="Long" resultMap="CarQueryDailyResult">
+        <include refid="selectCarQueryDailyVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCarQueryDaily" parameterType="CarQueryDaily" useGeneratedKeys="true" keyProperty="id">
+        insert into car_query_daily
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">yhdh,</if>
+            <if test="xm != null">xm,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="sj != null">sj,</if>
+            <if test="drzd != null">drzd,</if>
+            <if test="bs != null">bs,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">#{yhdh},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="sj != null">#{sj},</if>
+            <if test="drzd != null">#{drzd},</if>
+            <if test="bs != null">#{bs},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCarQueryDaily" parameterType="CarQueryDaily">
+        update car_query_daily
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yhdh != null">yhdh = #{yhdh},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="sj != null">sj = #{sj},</if>
+            <if test="drzd != null">drzd = #{drzd},</if>
+            <if test="bs != null">bs = #{bs},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCarQueryDailyById" parameterType="Long">
+        delete from car_query_daily where id = #{id}
+    </delete>
+
+    <delete id="deleteCarQueryDailyByIds" parameterType="String">
+        delete from car_query_daily where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

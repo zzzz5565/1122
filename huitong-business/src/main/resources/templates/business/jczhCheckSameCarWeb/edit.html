@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改反复查询同一辆车-web')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-jczhCheckSameCarWeb-edit" th:object="${jczhCheckSameCarWeb}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">管理部门：</label>
+                <div class="col-sm-8">
+                    <input name="glbm" th:field="*{glbm}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">姓名：</label>
+                <div class="col-sm-8">
+                    <input name="xm" th:field="*{xm}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">号牌种类：</label>
+                <div class="col-sm-8">
+                    <input name="hpzl" th:field="*{hpzl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">号牌号码：</label>
+                <div class="col-sm-8">
+                    <input name="hphm" th:field="*{hphm}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">数量：</label>
+                <div class="col-sm-8">
+                    <input name="sl" th:field="*{sl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">查询时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="cxsj" th:value="${#dates.format(jczhCheckSameCarWeb.cxsj, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "business/jczhCheckSameCarWeb";
+        $("#form-jczhCheckSameCarWeb-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                let encrypJson = formToJsonEncryp('#form-jczhCheckSameCarWeb-edit');
+                $.operate.saveJson(prefix + "/edit",encrypJson);
+            }
+        }
+
+        $("input[name='cxsj']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

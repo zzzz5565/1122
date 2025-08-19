@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.EquPicDetectionMapper">
+
+    <resultMap type="EquPicDetection" id="EquPicDetectionResult">
+        <result property="id"    column="id"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="sbbh"    column="sbbh"    />
+        <result property="sbmc"    column="sbmc"    />
+    </resultMap>
+
+    <sql id="selectEquPicDetectionVo">
+        select id, glbm, sbbh, sbmc from equ_pic_detection
+    </sql>
+
+    <select id="selectEquPicDetectionList" parameterType="EquPicDetection" resultMap="EquPicDetectionResult">
+        <include refid="selectEquPicDetectionVo"/>
+        <where>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="sbbh != null  and sbbh != ''"> and sbbh = #{sbbh}</if>
+            <if test="sbmc != null  and sbmc != ''"> and sbmc = #{sbmc}</if>
+        </where>
+    </select>
+    <select id="selectEquPicDetectionLists" parameterType="EquPicDetection" resultMap="EquPicDetectionResult">
+        select (select substr(glbm,1,6) from dev_vio_equipment e where e.sbbh = d.sbbh) glbm,
+        sbbh,
+        (select sbmc from dev_vio_equipment e where e.sbbh = d.sbbh) sbmc
+        from
+        (  select a.sbbh,a.wjmc,b.wjmc,c.wjmc
+        from
+        (select d.sbbh,e.sbmc,d.wjmc,e.glbm
+        from dev_vio_equipment_pic d,dev_vio_equipment e
+        where e.sbbh=d.sbbh and e.zt=1 and d.xh =1)a,
+        (select d.sbbh,e.sbmc,d.wjmc,e.glbm
+        from dev_vio_equipment_pic d,dev_vio_equipment e
+        where e.sbbh=d.sbbh and e.zt=1 and d.xh =2)b,
+        (select d.sbbh,e.sbmc,d.wjmc,e.glbm
+        from dev_vio_equipment_pic d,dev_vio_equipment e
+        where e.sbbh=d.sbbh and e.zt=1 and d.xh =3)c
+        where a.wjmc =b.wjmc and a.wjmc =c.wjmc and a.sbbh=b.sbbh and a.sbbh = c.sbbh
+
+        )d
+        WHERE SBBH NOT IN
+        (
+        select a.sbbh from
+        (select d.sbbh,d.wjmc from dev_vio_equipment_pic_TEMP d,dev_vio_equipment e where e.sbbh=d.sbbh and e.zt=1 and d.xh =1)a,
+        (select d.sbbh,d.wjmc from dev_vio_equipment_pic_TEMP d,dev_vio_equipment e where e.sbbh=d.sbbh and e.zt=1 and d.xh =2)b,
+        (select d.sbbh,d.wjmc from dev_vio_equipment_pic_TEMP d,dev_vio_equipment e where e.sbbh=d.sbbh and e.zt=1 and d.xh =3)c
+        where a.wjmc !=b.wjmc and a.wjmc !=c.wjmc and a.sbbh=b.sbbh and a.sbbh = c.sbbh
+        )
+        <where>
+            <if test="sbbh != null  and sbbh != ''"> and sbbh = #{sbbh}</if>
+        </where>
+    </select>
+
+    <select id="selectEquPicDetectionById" parameterType="Long" resultMap="EquPicDetectionResult">
+        <include refid="selectEquPicDetectionVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertEquPicDetection" parameterType="EquPicDetection" useGeneratedKeys="true" keyProperty="id">
+        insert into equ_pic_detection
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">glbm,</if>
+            <if test="sbbh != null">sbbh,</if>
+            <if test="sbmc != null">sbmc,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">#{glbm},</if>
+            <if test="sbbh != null">#{sbbh},</if>
+            <if test="sbmc != null">#{sbmc},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEquPicDetection" parameterType="EquPicDetection">
+        update equ_pic_detection
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="sbbh != null">sbbh = #{sbbh},</if>
+            <if test="sbmc != null">sbmc = #{sbmc},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEquPicDetectionById" parameterType="Long">
+        delete from equ_pic_detection where id = #{id}
+    </delete>
+
+    <delete id="deleteEquPicDetectionByIds" parameterType="String">
+        delete from equ_pic_detection where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

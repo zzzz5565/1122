@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.JczhCheckSameCarWebDtlMapper">
+
+    <resultMap type="JczhCheckSameCarWebDtl" id="JczhCheckSameCarWebDtlResult">
+        <result property="id"    column="id"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="xm"    column="xm"    />
+        <result property="cxsj"    column="cxsj"    />
+        <result property="hpzl"    column="hpzl"    />
+        <result property="hphm"    column="hphm"    />
+        <result property="ip"    column="ip"    />
+    </resultMap>
+
+    <sql id="selectJczhCheckSameCarWebDtlVo">
+        select id, glbm, xm, cxsj, hpzl, hphm, ip from jczh_check_same_car_web_dtl
+    </sql>
+
+    <select id="selectJczhCheckSameCarWebDtlList" parameterType="JczhCheckSameCarWebDtl" resultMap="JczhCheckSameCarWebDtlResult">
+        <include refid="selectJczhCheckSameCarWebDtlVo"/>
+        <where>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="xm != null  and xm != ''"> and xm = #{xm}</if>
+            <if test="cxsj != null "> and cxsj = #{cxsj}</if>
+            <if test="hpzl != null  and hpzl != ''"> and hpzl = #{hpzl}</if>
+            <if test="hphm != null  and hphm != ''"> and hphm = #{hphm}</if>
+            <if test="ip != null  and ip != ''"> and ip = #{ip}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(cxsj,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(cxsj,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+    <select id="selectJczhCheckSameCarWebDtlLists" parameterType="JczhCheckSameCarWebDtl" resultMap="JczhCheckSameCarWebDtlResult">
+        select (select bmmc from frm_tms_department t where t.glbm=l.glbm) glbm,xm,cxsj,hpzl,hphm,ip
+        from (
+        select * from tfc_query_log
+        where 1 = 1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and cxsj >= to_date(#{params.beginTime},'yyyy-mm-dd')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and to_date(#{params.endTime},'yyyy-mm-dd') >= cxsj
+        </if>
+            ) l
+        where xm in (select xm from ((
+        select glbm,xm,hpzl,hphm,count(1) sl from (
+        select * from tfc_query_log
+        where 1 = 1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and cxsj >= to_date(#{params.beginTime},'yyyy-mm-dd')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and to_date(#{params.endTime},'yyyy-mm-dd') >= cxsj
+        </if>
+            )
+        where length(hphm)>5 group by glbm,xm,hpzl,hphm)) l where sl>=10)
+        and hphm is not null
+        order by xm
+    </select>
+
+    <select id="selectJczhCheckSameCarWebDtlById" parameterType="Long" resultMap="JczhCheckSameCarWebDtlResult">
+        <include refid="selectJczhCheckSameCarWebDtlVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertJczhCheckSameCarWebDtl" parameterType="JczhCheckSameCarWebDtl" useGeneratedKeys="true" keyProperty="id">
+        insert into jczh_check_same_car_web_dtl
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">glbm,</if>
+            <if test="xm != null">xm,</if>
+            <if test="cxsj != null">cxsj,</if>
+            <if test="hpzl != null">hpzl,</if>
+            <if test="hphm != null">hphm,</if>
+            <if test="ip != null">ip,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">#{glbm},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="cxsj != null">#{cxsj},</if>
+            <if test="hpzl != null">#{hpzl},</if>
+            <if test="hphm != null">#{hphm},</if>
+            <if test="ip != null">#{ip},</if>
+         </trim>
+    </insert>
+
+    <update id="updateJczhCheckSameCarWebDtl" parameterType="JczhCheckSameCarWebDtl">
+        update jczh_check_same_car_web_dtl
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="cxsj != null">cxsj = #{cxsj},</if>
+            <if test="hpzl != null">hpzl = #{hpzl},</if>
+            <if test="hphm != null">hphm = #{hphm},</if>
+            <if test="ip != null">ip = #{ip},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteJczhCheckSameCarWebDtlById" parameterType="Long">
+        delete from jczh_check_same_car_web_dtl where id = #{id}
+    </delete>
+
+    <delete id="deleteJczhCheckSameCarWebDtlByIds" parameterType="String">
+        delete from jczh_check_same_car_web_dtl where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

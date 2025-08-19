@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('设备状态异常明细')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "business/devVioEquWarningDept";
+        var sblxDatas = [[${@dict.getType('device_type')}]];
+        var sbztDatas = [[${@dict.getType('device_zt')}]];
+
+        var yjlx = [[${yjlx}]];
+        var glbm = [[${glbm}]];
+        var yjrq = [[${yjrq}]];
+
+        $(function() {
+            var options = {
+                url: prefix + "/ztycDetailList/"+yjlx+"/"+glbm+"/"+yjrq,
+                exportUrl: prefix + "/export",
+                exportZipUrl: prefix + "/exportZip",
+                modalName: "设备状态异常明细",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: 'glbm',
+                    title: '管理部门'
+                },
+                {
+                    field: 'sbbh',
+                    title: '设备编号',
+                },
+                {
+                    field: 'sbmc',
+                    title: '设备名称',
+                },
+                {
+                    field: 'sblx',
+                    title: '设备类型',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(sblxDatas, value);
+                    }
+                },
+                {
+                    field: 'yjrq',
+                    title: '预警日期',
+                    formatter: function(value, row, index) {
+                        // 截取日期部分（前10个字符：yyyy-mm-dd）
+                        return value ? value.substring(0, 10) : '';
+                    }
+                },
+                {
+                    field: 'zt',
+                    title: '状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(sbztDatas, value);
+                    }
+                },
+                {
+                    field: 'zt2',
+                    title: '预警前一天状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(sbztDatas, value);
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.AbnormalUserQueryMapper">
+
+    <resultMap type="AbnormalUserQuery" id="AbnormalUserQueryResult">
+        <result property="id"    column="id"    />
+        <result property="yhdh"    column="yhdh"    />
+        <result property="xm"    column="xm"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="cxzs"    column="cxzs"    />
+        <result property="cxts"    column="cxts"    />
+        <result property="sj"    column="sj"    />
+        <result property="drzd"    column="drzd"    />
+        <result property="ypjcxs"    column="ypjcxs"    />
+        <result property="cxbs"    column="cxbs"    />
+    </resultMap>
+
+    <sql id="selectAbnormalUserQueryVo">
+        select id, yhdh, xm, glbm, cxzs, cxts, sj, drzd, ypjcxs, cxbs from abnormal_user_query
+    </sql>
+
+    <select id="selectAbnormalUserQueryList" parameterType="AbnormalUserQuery" resultMap="AbnormalUserQueryResult">
+        <include refid="selectAbnormalUserQueryVo"/>
+        <where>
+            <if test="yhdh != null  and yhdh != ''"> and yhdh = #{yhdh}</if>
+            <if test="xm != null  and xm != ''"> and xm = #{xm}</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="cxzs != null  and cxzs != ''"> and cxzs = #{cxzs}</if>
+            <if test="cxts != null  and cxts != ''"> and cxts = #{cxts}</if>
+            <if test="sj != null "> and sj = #{sj}</if>
+            <if test="drzd != null  and drzd != ''"> and drzd = #{drzd}</if>
+            <if test="ypjcxs != null  and ypjcxs != ''"> and ypjcxs = #{ypjcxs}</if>
+            <if test="cxbs != null  and cxbs != ''"> and cxbs = #{cxbs}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and sj >= STR_TO_DATE(#{params.beginTime}, '%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                and sj &lt; DATE_ADD(STR_TO_DATE(#{params.endTime}, '%Y-%m-%d %H:%i:%s'), INTERVAL 1 DAY)
+            </if>
+        </where>
+    </select>
+    <select id="selectAbnormalUserQueryLists" parameterType="AbnormalUserQuery" resultMap="AbnormalUserQueryResult">
+        select yhdh,
+               xm,
+               glbm,
+               cxzs,
+               cxts,
+               sj,
+               drzd,
+               cxzs/cxts as ypjcxs,
+               drzd/(cxzs/cxts) as cxbs
+        from (
+              select s.yhdh,s.xm,s.glbm,s.cxzs,a.cxts,o.sj,o.drzd from (
+                 select yhdh, xm,
+                     (select bmmc from trff_app.FRM_TMS_DEPARTMENT d where d.GLBM = t.GLBM) glbm,
+                      count(*) cxzs
+                  from trff_app.FRM_TMS_IMPT_DATA_ACCESS_LOG t
+                 where 1 = 1
+                 <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                     and xrsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+                 </if>
+                 <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                     and xrsj &lt; to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')+1
+                 </if>
+                 group by yhdh,xm,glbm) s
+        join (
+-- 获取当月查询天数
+               SELECT yhdh,COUNT(*) cxts FROM (
+                     select yhdh,to_CHAR(XRSJ,'yyyy-MM-dd') SJ
+                     from trff_app.FRM_TMS_IMPT_DATA_ACCESS_LOG
+                     where 1 = 1
+                     <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                         and xrsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+                     </if>
+                     <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                         and xrsj &lt; to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')+1
+                     </if>
+                     GROUP BY yhdh,to_CHAR(XRSJ,'yyyy-MM-dd'))
+               GROUP BY yhdh
+               ) a on a.yhdh = s.yhdh
+         join (
+-- 获取单日最大查询数
+               select yhdh,sj,max(dr) drzd from(
+                     select yhdh,to_CHAR(XRSJ,'yyyy-MM-dd') SJ,count(*) dr
+                     from trff_app.FRM_TMS_IMPT_DATA_ACCESS_LOG
+                     where 1 = 1
+                     <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                         and xrsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+                     </if>
+                     <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                         and xrsj &lt; to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')+1
+                     </if>
+                     GROUP BY yhdh,to_CHAR(XRSJ,'yyyy-MM-dd'))
+               group by yhdh,sj
+               )o on o.yhdh=s.yhdh ) where cxzs/cxts >=30 and drzd/(cxzs/cxts) >=5
+
+    </select>
+
+    <select id="selectAbnormalUserQueryById" parameterType="Long" resultMap="AbnormalUserQueryResult">
+        <include refid="selectAbnormalUserQueryVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertAbnormalUserQuery" parameterType="AbnormalUserQuery" useGeneratedKeys="true" keyProperty="id">
+        insert into abnormal_user_query
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">yhdh,</if>
+            <if test="xm != null">xm,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="cxzs != null">cxzs,</if>
+            <if test="cxts != null">cxts,</if>
+            <if test="sj != null">sj,</if>
+            <if test="drzd != null">drzd,</if>
+            <if test="ypjcxs != null">ypjcxs,</if>
+            <if test="cxbs != null">cxbs,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">#{yhdh},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="cxzs != null">#{cxzs},</if>
+            <if test="cxts != null">#{cxts},</if>
+            <if test="sj != null">#{sj},</if>
+            <if test="drzd != null">#{drzd},</if>
+            <if test="ypjcxs != null">#{ypjcxs},</if>
+            <if test="cxbs != null">#{cxbs},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAbnormalUserQuery" parameterType="AbnormalUserQuery">
+        update abnormal_user_query
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yhdh != null">yhdh = #{yhdh},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="cxzs != null">cxzs = #{cxzs},</if>
+            <if test="cxts != null">cxts = #{cxts},</if>
+            <if test="sj != null">sj = #{sj},</if>
+            <if test="drzd != null">drzd = #{drzd},</if>
+            <if test="ypjcxs != null">ypjcxs = #{ypjcxs},</if>
+            <if test="cxbs != null">cxbs = #{cxbs},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAbnormalUserQueryById" parameterType="Long">
+        delete from abnormal_user_query where id = #{id}
+    </delete>
+
+    <delete id="deleteAbnormalUserQueryByIds" parameterType="String">
+        delete from abnormal_user_query where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

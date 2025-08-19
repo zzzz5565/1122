@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DevVioEquWarningDeptMapper">
+    
+    <resultMap type="DevVioEquWarningDept" id="DevVioEquWarningDeptResult">
+        <result property="id"    column="id"    />
+        <result property="yjrq"    column="yjrq"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="sbbh"    column="sbbh"    />
+        <result property="sblx"    column="sblx"    />
+        <result property="sbmc"    column="sbmc"    />
+        <result property="yjllx"    column="yjllx"    />
+        <result property="yjlx"    column="yjlx"    />
+        <result property="shuliang"    column="shuliang"    />
+        <result property="wfxw"    column="wfxw"    />
+        <result property="cjsj"    column="cjsj"    />
+        <result property="wsjsc"    column="wsjsc"    />
+        <result property="ztyc"    column="ztyc"    />
+        <result property="zplyc"    column="zplyc"    />
+        <result property="sjjz"    column="sjjz"    />
+        <result property="sjjj"    column="sjjj"    />
+        <result property="csyc"    column="csyc"    />
+        <result property="zpl"    column="zpl"    />
+        <result property="cszfl"    column="cszfl"    />
+        <result property="zfl"    column="zfl"    />
+        <result property="bz"    column="bz"    />
+        <result property="zt"    column="zt"    />
+        <result property="zt2"    column="zt2"    />
+        <result property="preDate"    column="preDate"    />
+        <result property="endDate"    column="endDate"    />
+        <result property="pjz"    column="pjz"    />
+        <result property="result"    column="result"    />
+    </resultMap>
+
+    <sql id="selectDevVioEquWarningDeptVo">
+        select id, yjrq, glbm, sbbh, yjllx, yjlx, shuliang, wfxw, cjsj, wsjsc, ztyc, zplyc, sjjz, sjjj, csyc, zfl, bz from dev_vio_equ_warning
+    </sql>
+
+    <select id="selectDevVioEquWarningDeptList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
+        <include refid="selectDevVioEquWarningDeptVo"/>
+        <where>  
+            <if test="yjrq != null "> and yjrq = #{yjrq}</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="sbbh != null  and sbbh != ''"> and sbbh = #{sbbh}</if>
+            <if test="yjllx != null "> and yjllx = #{yjllx}</if>
+            <if test="yjlx != null "> and yjlx = #{yjlx}</if>
+            <if test="shuliang != null  and shuliang != ''"> and shuliang = #{shuliang}</if>
+            <if test="wfxw != null  and wfxw != ''"> and wfxw = #{wfxw}</if>
+            <if test="cjsj != null "> and cjsj = #{cjsj}</if>
+            <if test="wsjsc != null  and wsjsc != ''"> and wsjsc = #{wsjsc}</if>
+            <if test="ztyc != null  and ztyc != ''"> and ztyc = #{ztyc}</if>
+            <if test="zplyc != null  and zplyc != ''"> and zplyc = #{zplyc}</if>
+            <if test="sjjz != null  and sjjz != ''"> and sjjz = #{sjjz}</if>
+            <if test="sjjj != null  and sjjj != ''"> and sjjj = #{sjjj}</if>
+            <if test="csyc != null  and csyc != ''"> and csyc = #{csyc}</if>
+            <if test="zfl != null  and zfl != ''"> and zfl = #{zfl}</if>
+            <if test="bz != null  and bz != ''"> and bz = #{bz}</if>
+        </where>
+    </select>
+
+
+    <select id="selectWarningDeptList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
+        select a.yjrq, a.glbm,sum(wsjsc) wsjsc, sum(ztyc) ztyc, sum(zplyc) zplyc, sum(sjjz) sjjz, sum(sjjj) sjjj, sum(csyc) csyc from (
+        select yjrq, glbm,count(*) wsjsc,0 ztyc,0 zplyc, 0 sjjz, 0 sjjj, 0 csyc from dev_vio_equ_warning t
+        where t.yjlx = '2'
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND yjrq &gt;= #{params.beginTime}
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND yjrq &lt;= #{params.endTime}
+        </if>
+        group by yjrq, glbm
+
+        union ALL
+
+        select yjrq, glbm,0 wsjsc,count(*) ztyc,0 zplyc, 0 sjjz, 0 sjjj, 0 csyc from dev_vio_equ_warning t
+        where t.yjlx = '7'
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND yjrq &gt;= #{params.beginTime}
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND yjrq &lt;= #{params.endTime}
+        </if>
+        group by yjrq, glbm
+
+        union ALL
+
+        select yjrq, glbm,0 wsjsc,0 ztyc,count(*) zplyc, 0 sjjz, 0 sjjj, 0 csyc from (
+        select yjrq, glbm,0 wsjsc,0 ztyc,count(*) zplyc, 0 sjjz, 0 sjjj, 0 csyc from dev_vio_equ_warning t
+        where t.yjlx = '1'
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND yjrq &gt;= #{params.beginTime}
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND yjrq &lt;= #{params.endTime}
+        </if>
+        group by yjrq, glbm, sbbh
+        ) a
+        group by a.yjrq, a.glbm
+
+        union all
+
+        select a.yjrq, a.glbm, 0 wsjsc, 0 ztyc, 0 zplyc, count(*) sjjz, 0 sjjj, 0 csyc from (
+        SELECT
+        target_day.sbbh sbbh,
+        target_day.glbm glbm,
+        target_day.yjrq yjrq,
+        target_day.total_shuliang shuliang,
+        comparison_avg.avg_shuliang pjz,
+        CASE
+        WHEN comparison_avg.avg_shuliang IS NULL THEN NULL
+        ELSE CONCAT(FORMAT((target_day.total_shuliang - comparison_avg.avg_shuliang) / NULLIF(comparison_avg.avg_shuliang, 0) * 100, 2), '%')
+        END AS bz,
+        CASE
+        WHEN comparison_avg.avg_shuliang IS NULL THEN '无足够数据进行比较'
+        WHEN comparison_avg.avg_shuliang = 0 THEN '基准平均值为0无法比较'
+        WHEN (target_day.total_shuliang - comparison_avg.avg_shuliang) / comparison_avg.avg_shuliang >= 0.5 THEN '数据激增'
+        WHEN (target_day.total_shuliang - comparison_avg.avg_shuliang) / comparison_avg.avg_shuliang &lt;= -0.5 THEN '数据巨减'
+        ELSE '无明显变化'
+        END AS result
+        FROM
+        (
+
+        SELECT
+        sbbh,
+        glbm,
+        yjrq,
+        total_shuliang
+        FROM
+        (
+        SELECT
+        sbbh,
+        glbm,
+        yjrq,
+        SUM(shuliang) AS total_shuliang
+        FROM dev_vio_equ_warning
+        WHERE yjlx = 1
+        GROUP BY sbbh, glbm, yjrq
+        ) AS daily_aggregated_data
+        WHERE
+        yjrq = #{yjrq}
+        ) AS target_day
+        LEFT JOIN
+        (
+
+        SELECT
+        sbbh,
+        glbm,
+        CASE
+        WHEN valid_count &lt; 3 THEN
+        valid_sum / NULLIF(valid_count, 0)
+        ELSE
+        (valid_sum - valid_max - valid_min) / NULLIF(valid_count - 2, 0)
+        END AS avg_shuliang
+        FROM
+        (
+        SELECT
+        sbbh,
+        glbm,
+        COUNT(total_shuliang) AS valid_count,
+        SUM(total_shuliang) AS valid_sum,
+        MAX(total_shuliang) AS valid_max,
+        MIN(total_shuliang) AS valid_min
+        FROM
+        (
+        SELECT
+        sbbh,
+        glbm,
+        yjrq,
+        SUM(shuliang) AS total_shuliang
+        FROM dev_vio_equ_warning
+        WHERE yjlx = 1
+        GROUP BY sbbh, glbm, yjrq
+        ) AS t
+        WHERE total_shuliang > 0
+        AND yjrq &gt;= #{preDate}
+        AND yjrq &lt;= #{endDate}
+        GROUP BY
+        sbbh, glbm
+        ) AS pre_calculation
+        ) AS comparison_avg ON target_day.sbbh = comparison_avg.sbbh
+
+        ) a
+        where a.result like '%数据激增%'
+        group by a.yjrq, a.glbm
+
+        union all
+
+        select a.yjrq, a.glbm, 0 wsjsc, 0 ztyc, 0 zplyc, 0 sjjz, count(*) sjjj, 0 csyc from (
+        SELECT
+        target_day.sbbh sbbh,
+        target_day.glbm glbm,
+        target_day.yjrq yjrq,
+        target_day.total_shuliang shuliang,
+        comparison_avg.avg_shuliang pjz,
+        CASE
+        WHEN comparison_avg.avg_shuliang IS NULL THEN NULL
+        ELSE CONCAT(FORMAT((target_day.total_shuliang - comparison_avg.avg_shuliang) / NULLIF(comparison_avg.avg_shuliang, 0) * 100, 2), '%')
+        END AS bz,
+        CASE
+        WHEN comparison_avg.avg_shuliang IS NULL THEN '无足够数据进行比较'
+        WHEN comparison_avg.avg_shuliang = 0 THEN '基准平均值为0无法比较'
+        WHEN (target_day.total_shuliang - comparison_avg.avg_shuliang) / comparison_avg.avg_shuliang >= 0.5 THEN '数据激增'
+        WHEN (target_day.total_shuliang - comparison_avg.avg_shuliang) / comparison_avg.avg_shuliang &lt;= -0.5 THEN '数据巨减'
+        ELSE '无明显变化'
+        END AS result
+        FROM
+        (
+
+        SELECT
+        sbbh,
+        glbm,
+        yjrq,
+        total_shuliang
+        FROM
+        (
+        SELECT
+        sbbh,
+        glbm,
+        yjrq,
+        SUM(shuliang) AS total_shuliang
+        FROM dev_vio_equ_warning
+        WHERE yjlx = 1
+        GROUP BY sbbh, glbm, yjrq
+        ) AS daily_aggregated_data
+        WHERE
+        yjrq = #{yjrq}
+        ) AS target_day
+        LEFT JOIN
+        (
+
+        SELECT
+        sbbh,
+        glbm,
+        CASE
+        WHEN valid_count &lt; 3 THEN
+        valid_sum / NULLIF(valid_count, 0)
+        ELSE
+        (valid_sum - valid_max - valid_min) / NULLIF(valid_count - 2, 0)
+        END AS avg_shuliang
+        FROM
+        (
+        SELECT
+        sbbh,
+        glbm,
+        COUNT(total_shuliang) AS valid_count,
+        SUM(total_shuliang) AS valid_sum,
+        MAX(total_shuliang) AS valid_max,
+        MIN(total_shuliang) AS valid_min
+        FROM
+        (
+        SELECT
+        sbbh,
+        glbm,
+        yjrq,
+        SUM(shuliang) AS total_shuliang
+        FROM dev_vio_equ_warning
+        WHERE yjlx = 1
+        GROUP BY sbbh, glbm, yjrq
+        ) AS t
+        WHERE total_shuliang > 0
+        AND yjrq &gt;= #{preDate}
+        AND yjrq &lt;= #{endDate}
+        GROUP BY
+        sbbh, glbm
+        ) AS pre_calculation
+        ) AS comparison_avg ON target_day.sbbh = comparison_avg.sbbh
+
+        ) a
+        where a.result like '%数据巨减%'
+        group by a.yjrq, a.glbm
+
+        union all
+
+        select b.yjrq, b.bmmc glbm,0 wsjsc,0 ztyc,0 zplyc, 0 sjjz, 0 sjjj, count(*) csyc from
+        (select t.yjrq, t.bmbm, d.bmmc, t.sbbh, ifnull((sum(cszfl)/sum(zpl)),0) zfl from dev_in_use t
+        left join fre_dep d on substr(t.bmbm,1,6) = d.bmbm
+        where zpl >= 10
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND yjrq &gt;= #{params.beginTime}
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND yjrq &lt;= #{params.endTime}
+        </if>
+        group by t.sbbh ) b
+        where b.zfl >= '0.2'
+        group by b.bmbm
+
+        ) a
+    <where>
+        <if test="glbm != null  and glbm != ''"> and a.glbm = #{glbm} and glbm not like '%一大队%' and glbm not like '%二大队%' and glbm not like '%三大队%'</if>
+    </where>
+        group by a.yjrq, a.glbm
+        order by case   when glbm like '%芝罘%' then 1
+                        when glbm like '%莱山%' then 2
+                        when glbm like '%高新%' then 3
+                        when glbm like '%高速福山%' then 17
+                        when glbm like '%高速海阳%' then 18
+                        when glbm like '%高速栖霞%' then 19
+                        when glbm like '%高速龙口%' then 20
+                        when glbm like '%高速莱州%' then 21
+                        when glbm like '%机场%' then 4
+                        when glbm like '%海港%' then 5
+                        when glbm like '%福山%' then 6
+                        when glbm like '%开发%' then 7
+                        when glbm like '%牟平%' then 8
+                        when glbm like '%蓬莱%' then 9
+                        when glbm like '%龙口%' then 10
+                        when glbm like '%莱阳%' then 11
+                        when glbm like '%莱州%' then 12
+                        when glbm like '%招远%' then 13
+                        when glbm like '%栖霞%' then 14
+                        when glbm like '%海阳%' then 15
+                        when glbm like '%长岛%' then 16
+                        else 25
+                end
+    </select>
+
+<!--    初审异常-->
+    <select id="selectCsycList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
+        select * from (select t.yjrq,
+                              t.glbm,
+                              t.sbbh,
+                              t.sbmc,
+                              t.sblx,
+                              t.zpl,
+                              t.cszfl,
+                              round((ifnull(t.cszfl, 0) / ifnull(t.zpl, 0)) * 100, 2) zfl
+                       from dev_in_use t
+                       where t.yjrq = #{yjrq}
+                         and t.glbm like concat('%', #{glbm}, '%')
+                         and t.zpl >= 10) a
+        where a.zfl >= 20
+    </select>
+
+<!--    无数据上传-->
+    <select id="selectWsjscList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
+        select t.yjrq, t.glbm, t.sbbh, d.sblx, d.sbmc from dev_vio_equ_warning t
+        left join dev_vio_equipment d on t.sbbh = d.sbbh
+        where t.yjlx = '2'
+          and t.yjrq = #{yjrq}
+          and t.glbm = #{glbm}
+    </select>
+
+<!--    状态异常-->
+    <select id="selectZtycList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
+        select t.yjrq, t.glbm, t.sbbh, d.sblx, d.sbmc, d.zt, e.zt zt2 from dev_vio_equ_warning t
+        left join dev_vio_equipment d on t.sbbh = d.sbbh
+        left join (select zt,sbbh from dev_vio_equipment_daily where daily = #{preDate}) e on t.sbbh = e.sbbh
+        where t.yjlx = '7'
+          and d.zt != e.zt
+          and t.yjrq = #{yjrq}
+          and t.glbm = #{glbm}
+    </select>
+
+<!--    抓拍量异常-->
+    <select id="selectZplycList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
+        select t.yjrq, t.glbm, t.sbbh, d.sbmc, d.sblx, sum(shuliang) shuliang from dev_vio_equ_warning t
+        left join dev_vio_equipment d on t.sbbh = d.sbbh
+        where t.yjlx = '1'
+        and t.yjrq = #{yjrq}
+        and t.glbm like concat('%', #{glbm}, '%')
+        group by t.yjrq, t.glbm ,t.sbbh
+        order by shuliang desc
+    </select>
+
+<!--    数据激增-->
+    <select id="selectSjjzList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
+        select a.yjrq, a.glbm, a.sbbh, b.sbmc, a.shuliang, round(a.pjz,0) pjz, a.bz, a.result from (
+          SELECT
+              target_day.sbbh sbbh,
+              target_day.glbm glbm,
+              target_day.yjrq yjrq,
+              target_day.total_shuliang shuliang,
+              comparison_avg.avg_shuliang pjz,
+              CASE
+                  WHEN comparison_avg.avg_shuliang IS NULL THEN NULL
+                  ELSE CONCAT(FORMAT((target_day.total_shuliang - comparison_avg.avg_shuliang) / NULLIF(comparison_avg.avg_shuliang, 0) * 100, 2), '%')
+                  END AS bz,
+              CASE
+                  WHEN comparison_avg.avg_shuliang IS NULL THEN '无足够数据进行比较'
+                  WHEN comparison_avg.avg_shuliang = 0 THEN '基准平均值为0无法比较'
+                  WHEN (target_day.total_shuliang - comparison_avg.avg_shuliang) / comparison_avg.avg_shuliang >= 0.5 THEN '数据激增'
+                  WHEN (target_day.total_shuliang - comparison_avg.avg_shuliang) / comparison_avg.avg_shuliang &lt;= -0.5 THEN '数据巨减'
+                  ELSE '无明显变化'
+                  END AS result
+          FROM
+              (
+
+                  SELECT
+                      sbbh,
+                      glbm,
+                      yjrq,
+                      total_shuliang
+                  FROM
+                      (
+                          SELECT
+                              sbbh,
+                              glbm,
+                              yjrq,
+                              SUM(shuliang) AS total_shuliang
+                          FROM dev_vio_equ_warning
+                          WHERE yjlx = 1
+                          GROUP BY sbbh, glbm, yjrq
+                      ) AS daily_aggregated_data
+                  WHERE
+                      yjrq = #{yjrq}
+              ) AS target_day
+                  LEFT JOIN
+              (
+
+                  SELECT
+                      sbbh,
+                      glbm,
+                      CASE
+                          WHEN valid_count &lt; 3 THEN
+                              valid_sum / NULLIF(valid_count, 0)
+                          ELSE
+                              (valid_sum - valid_max - valid_min) / NULLIF(valid_count - 2, 0)
+                          END AS avg_shuliang
+                  FROM
+                      (
+                          SELECT
+                              sbbh,
+                              glbm,
+                              COUNT(total_shuliang) AS valid_count,
+                              SUM(total_shuliang) AS valid_sum,
+                              MAX(total_shuliang) AS valid_max,
+                              MIN(total_shuliang) AS valid_min
+                          FROM
+                              (
+                                  SELECT
+                                      sbbh,
+                                      glbm,
+                                      yjrq,
+                                      SUM(shuliang) AS total_shuliang
+                                  FROM dev_vio_equ_warning
+                                  WHERE yjlx = 1
+                                  GROUP BY sbbh, glbm, yjrq
+                              ) AS t
+                          WHERE total_shuliang > 0
+                            AND yjrq &gt;= #{preDate}
+                            AND yjrq &lt;= #{endDate}
+                          GROUP BY
+                              sbbh, glbm
+                      ) AS pre_calculation
+              ) AS comparison_avg ON target_day.sbbh = comparison_avg.sbbh
+        ) a
+          left join dev_vio_equipment b on a.sbbh = b.sbbh
+        where a.result like '%数据激增%'
+          and a.glbm like concat('%', #{glbm}, '%')
+    </select>
+
+<!--    数据巨减-->
+    <select id="selectSjjjList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
+        select a.yjrq, a.glbm, a.sbbh, b.sbmc, a.shuliang, round(a.pjz,0) pjz, a.bz, a.result from (
+          SELECT
+              target_day.sbbh sbbh,
+              target_day.glbm glbm,
+              target_day.yjrq yjrq,
+              target_day.total_shuliang shuliang,
+              comparison_avg.avg_shuliang pjz,
+              CASE
+                  WHEN comparison_avg.avg_shuliang IS NULL THEN NULL
+                  ELSE CONCAT(FORMAT((target_day.total_shuliang - comparison_avg.avg_shuliang) / NULLIF(comparison_avg.avg_shuliang, 0) * 100, 2), '%')
+                  END AS bz,
+              CASE
+                  WHEN comparison_avg.avg_shuliang IS NULL THEN '无足够数据进行比较'
+                  WHEN comparison_avg.avg_shuliang = 0 THEN '基准平均值为0无法比较'
+                  WHEN (target_day.total_shuliang - comparison_avg.avg_shuliang) / comparison_avg.avg_shuliang >= 0.5 THEN '数据激增'
+                  WHEN (target_day.total_shuliang - comparison_avg.avg_shuliang) / comparison_avg.avg_shuliang &lt;= -0.5 THEN '数据巨减'
+                  ELSE '无明显变化'
+                  END AS result
+          FROM
+              (
+
+                  SELECT
+                      sbbh,
+                      glbm,
+                      yjrq,
+                      total_shuliang
+                  FROM
+                      (
+                          SELECT
+                              sbbh,
+                              glbm,
+                              yjrq,
+                              SUM(shuliang) AS total_shuliang
+                          FROM dev_vio_equ_warning
+                          WHERE yjlx = 1
+                          GROUP BY sbbh, glbm, yjrq
+                      ) AS daily_aggregated_data
+                  WHERE
+                      yjrq = #{yjrq}
+              ) AS target_day
+                  LEFT JOIN
+              (
+
+                  SELECT
+                      sbbh,
+                      glbm,
+                      CASE
+                          WHEN valid_count &lt; 3 THEN
+                              valid_sum / NULLIF(valid_count, 0)
+                          ELSE
+                              (valid_sum - valid_max - valid_min) / NULLIF(valid_count - 2, 0)
+                          END AS avg_shuliang
+                  FROM
+                      (
+                          SELECT
+                              sbbh,
+                              glbm,
+                              COUNT(total_shuliang) AS valid_count,
+                              SUM(total_shuliang) AS valid_sum,
+                              MAX(total_shuliang) AS valid_max,
+                              MIN(total_shuliang) AS valid_min
+                          FROM
+                              (
+                                  SELECT
+                                      sbbh,
+                                      glbm,
+                                      yjrq,
+                                      SUM(shuliang) AS total_shuliang
+                                  FROM dev_vio_equ_warning
+                                  WHERE yjlx = 1
+                                  GROUP BY sbbh, glbm, yjrq
+                              ) AS t
+                          WHERE total_shuliang > 0
+                            AND yjrq &gt;= #{preDate}
+                            AND yjrq &lt;= #{endDate}
+                          GROUP BY
+                              sbbh, glbm
+                      ) AS pre_calculation
+              ) AS comparison_avg ON target_day.sbbh = comparison_avg.sbbh
+        ) a
+        left join dev_vio_equipment b on a.sbbh = b.sbbh
+        where a.result like '%数据巨减%'
+          and a.glbm like concat('%', #{glbm}, '%')
+    </select>
+
+    <select id="selectDevVioEquWarningDeptById" parameterType="Long" resultMap="DevVioEquWarningDeptResult">
+        <include refid="selectDevVioEquWarningDeptVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertDevVioEquWarningDept" parameterType="DevVioEquWarningDept" useGeneratedKeys="true" keyProperty="id">
+        insert into dev_vio_equ_warning
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">yjrq,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="sbbh != null">sbbh,</if>
+            <if test="yjllx != null">yjllx,</if>
+            <if test="yjlx != null">yjlx,</if>
+            <if test="shuliang != null">shuliang,</if>
+            <if test="wfxw != null">wfxw,</if>
+            <if test="cjsj != null">cjsj,</if>
+            <if test="wsjsc != null">wsjsc,</if>
+            <if test="ztyc != null">ztyc,</if>
+            <if test="zplyc != null">zplyc,</if>
+            <if test="sjjz != null">sjjz,</if>
+            <if test="sjjj != null">sjjj,</if>
+            <if test="csyc != null">csyc,</if>
+            <if test="zfl != null">zfl,</if>
+            <if test="bz != null">bz,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">#{yjrq},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="sbbh != null">#{sbbh},</if>
+            <if test="yjllx != null">#{yjllx},</if>
+            <if test="yjlx != null">#{yjlx},</if>
+            <if test="shuliang != null">#{shuliang},</if>
+            <if test="wfxw != null">#{wfxw},</if>
+            <if test="cjsj != null">#{cjsj},</if>
+            <if test="wsjsc != null">#{wsjsc},</if>
+            <if test="ztyc != null">#{ztyc},</if>
+            <if test="zplyc != null">#{zplyc},</if>
+            <if test="sjjz != null">#{sjjz},</if>
+            <if test="sjjj != null">#{sjjj},</if>
+            <if test="csyc != null">#{csyc},</if>
+            <if test="zfl != null">#{zfl},</if>
+            <if test="bz != null">#{bz},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDevVioEquWarningDept" parameterType="DevVioEquWarningDept">
+        update dev_vio_equ_warning
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yjrq != null">yjrq = #{yjrq},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="sbbh != null">sbbh = #{sbbh},</if>
+            <if test="yjllx != null">yjllx = #{yjllx},</if>
+            <if test="yjlx != null">yjlx = #{yjlx},</if>
+            <if test="shuliang != null">shuliang = #{shuliang},</if>
+            <if test="wfxw != null">wfxw = #{wfxw},</if>
+            <if test="cjsj != null">cjsj = #{cjsj},</if>
+            <if test="wsjsc != null">wsjsc = #{wsjsc},</if>
+            <if test="ztyc != null">ztyc = #{ztyc},</if>
+            <if test="zplyc != null">zplyc = #{zplyc},</if>
+            <if test="sjjz != null">sjjz = #{sjjz},</if>
+            <if test="sjjj != null">sjjj = #{sjjj},</if>
+            <if test="csyc != null">csyc = #{csyc},</if>
+            <if test="zfl != null">zfl = #{zfl},</if>
+            <if test="bz != null">bz = #{bz},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDevVioEquWarningDeptById" parameterType="Long">
+        delete from dev_vio_equ_warning where id = #{id}
+    </delete>
+
+    <delete id="deleteDevVioEquWarningDeptByIds" parameterType="String">
+        delete from dev_vio_equ_warning where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

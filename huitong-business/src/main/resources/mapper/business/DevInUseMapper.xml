@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DevInUseMapper">
+    
+    <resultMap type="DevInUse" id="DevInUseResult">
+        <result property="id"    column="id"    />
+        <result property="yjrq"    column="yjrq"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="bmbm"    column="bmbm"    />
+        <result property="sbbh"    column="sbbh"    />
+        <result property="sblx"    column="sblx"    />
+        <result property="syzt"    column="syzt"    />
+        <result property="sbmc"    column="sbmc"    />
+        <result property="zpl"    column="zpl"    />
+        <result property="syl"    column="syl"    />
+        <result property="dcsl"    column="dcsl"    />
+        <result property="lsdcsl"    column="lsdcsl"    />
+        <result property="dhdl"    column="dhdl"    />
+        <result property="lsdhdl"    column="lsdhdl"    />
+        <result property="yscl"    column="yscl"    />
+        <result property="cszfl"    column="cszfl"    />
+        <result property="fszfl"    column="fszfl"    />
+        <result property="cjsj"    column="cjsj"    />
+    </resultMap>
+
+    <sql id="selectDevInUseVo">
+        select id, yjrq, glbm, bmbm, sbbh, sblx, syzt, sbmc, zpl, syl, dcsl, lsdcsl, dhdl, lsdhdl, yscl, cszfl, fszfl, cjsj from dev_in_use
+    </sql>
+
+    <select id="selectDevInUseList" parameterType="DevInUse" resultMap="DevInUseResult">
+        <include refid="selectDevInUseVo"/>
+        <where>  
+            <if test="params.beginYjrq != null and params.beginYjrq != ''">
+                and date_format(yjrq,'%y%m%d') &gt;= date_format(#{params.beginYjrq},'%y%m%d')
+            </if>
+            <if test="params.endYjrq != null and params.endYjrq != ''">
+                and date_format(yjrq,'%y%m%d') &lt;= date_format(#{params.endYjrq},'%y%m%d')
+            </if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="bmbm != null  and bmbm != ''"> and bmbm = #{bmbm}</if>
+            <if test="sbbh != null  and sbbh != ''"> and sbbh like concat('%', #{sbbh}, '%')</if>
+            <if test="sblx != null  and sblx != ''"> and sblx like concat('%', #{sblx}, '%')</if>
+            <if test="syzt != null  and syzt != ''"> and syzt like concat('%', #{syzt}, '%')</if>
+            <if test="sbmc != null  and sbmc != ''"> and sbmc like concat('%', #{sbmc}, '%')</if>
+            <if test="zpl != null  and zpl != ''"> and zpl like concat('%', #{zpl}, '%')</if>
+            <if test="syl != null  and syl != ''"> and syl = #{syl}</if>
+            <if test="dcsl != null  and dcsl != ''"> and dcsl = #{dcsl}</if>
+            <if test="lsdcsl != null  and lsdcsl != ''"> and lsdcsl = #{lsdcsl}</if>
+            <if test="dhdl != null  and dhdl != ''"> and dhdl = #{dhdl}</if>
+            <if test="lsdhdl != null  and lsdhdl != ''"> and lsdhdl = #{lsdhdl}</if>
+            <if test="yscl != null  and yscl != ''"> and yscl = #{yscl}</if>
+            <if test="cszfl != null  and cszfl != ''"> and cszfl = #{cszfl}</if>
+            <if test="fszfl != null  and fszfl != ''"> and fszfl = #{fszfl}</if>
+            <if test="cjsj != null "> and cjsj = #{cjsj}</if>
+        </where>
+    </select>
+
+<!--    同步在用设备-->
+    <select id="selectDevInUseLists" parameterType="DevInUse" resultMap="DevInUseResult">
+        WITH device_info AS (
+            SELECT
+                (select BMMC FROM FRM_TMS_DEPARTMENT F WHERE t.glbm=F.GLBM) AS GM,
+                t.sbbh AS QH,
+                t.glbm AS bmbm,
+                t.sblx AS LX,
+                t.syzt AS SY,
+                t.sbmc AS MC
+            FROM dev_vio_equipment t
+            WHERE t.glbm LIKE '3706%'
+              AND t.zt ='1'
+              AND t.syzt IN ('1', '2')
+              AND t.shyj LIKE '%通过%'
+              AND (t.spyj LIKE '%同意%' OR (t.spr IS NOT NULL AND t.spyj IS NULL))
+        ),
+             screen_stats AS (
+                 SELECT sbbh, COUNT(1) SSL1
+                 FROM vio_surveil_screen
+                 WHERE  wfsj >=to_date(#{strDayStart},'yyyy-mm-dd hh24:mi:ss')
+                   and wfsj &lt;= to_date(#{strDayEnd},'yyyy-mm-dd hh24:mi:ss')
+                 GROUP BY sbbh
+             ),
+             his_screen_stats AS (
+                 SELECT sbbh, COUNT(1) SSL2
+                 FROM vio_surveil_screen_his
+                 WHERE wfsj >=to_date(#{strDayStart},'yyyy-mm-dd hh24:mi:ss')
+                   and wfsj &lt;= to_date(#{strDayEnd},'yyyy-mm-dd hh24:mi:ss')
+                 GROUP BY sbbh
+             ),
+             examine_stats AS (
+                 SELECT sbbh, COUNT(1) SSL3
+                 FROM vio_surveil_examine
+                 WHERE wfsj >=to_date(#{strDayStart},'yyyy-mm-dd hh24:mi:ss')
+                   and wfsj &lt;= to_date(#{strDayEnd},'yyyy-mm-dd hh24:mi:ss')
+                 GROUP BY sbbh
+             ),
+             his_examine_stats AS (
+                 SELECT sbbh, COUNT(1) SSL4
+                 FROM vio_surveil_examine_his
+                 WHERE wfsj >=to_date(#{strDayStart},'yyyy-mm-dd hh24:mi:ss')
+                   and wfsj &lt;= to_date(#{strDayEnd},'yyyy-mm-dd hh24:mi:ss')
+                 GROUP BY sbbh
+             ),
+             surveil_stats AS (
+                 SELECT sbbh, COUNT(1) SSL5
+                 FROM vio_surveil
+                 WHERE wfsj >=to_date(#{strDayStart},'yyyy-mm-dd hh24:mi:ss')
+                   and wfsj &lt;= to_date(#{strDayEnd},'yyyy-mm-dd hh24:mi:ss')
+                 GROUP BY sbbh
+             ),
+             err_stats AS (
+                 SELECT sbbh, COUNT(1) SSL6
+                 FROM vio_surveil_screen_err
+                 WHERE wfsj >=to_date(#{strDayStart},'yyyy-mm-dd hh24:mi:ss')
+                   and wfsj &lt;= to_date(#{strDayEnd},'yyyy-mm-dd hh24:mi:ss')
+                 GROUP BY sbbh
+             ),
+             screen_warn AS (
+                 SELECT sbbh, COUNT(1) SSL7
+                 FROM vio_surveil_warn
+                 WHERE wfsj >=to_date(#{strDayStart},'yyyy-mm-dd hh24:mi:ss')
+                   and wfsj &lt;= to_date(#{strDayEnd},'yyyy-mm-dd hh24:mi:ss')
+                 GROUP BY sbbh
+             ),
+             examine_err AS (
+                 SELECT sbbh, COUNT(1) SSL8
+                 FROM vio_surveil_examine_err
+                 WHERE wfsj >=to_date(#{strDayStart},'yyyy-mm-dd hh24:mi:ss')
+                   and wfsj &lt;= to_date(#{strDayEnd},'yyyy-mm-dd hh24:mi:ss')
+                 GROUP BY sbbh
+             )
+        SELECT
+            d.GM AS "glbm",
+            d.bmbm AS "bmbm",
+            d.QH AS "sbbh",
+            d.LX AS "sblx",
+            d.SY AS "syzt",
+            d.MC AS "sbmc",
+            NVL(s1.SSL1,0) + NVL(s2.SSL2,0) + NVL(s3.SSL3,0)
+                + NVL(s4.SSL4,0) + NVL(s5.SSL5,0) + NVL(s6.SSL6,0)+ NVL(s7.SSL7,0)+ NVL(s8.SSL8,0) AS "zpl",
+            NVL(s7.SSL7,0) AS "syl",
+            NVL(s1.SSL1,0) AS "dcsl",
+            NVL(s2.SSL2,0) AS "lsdcsl",
+            NVL(s3.SSL3,0) AS "dhdl",
+            NVL(s4.SSL4,0) AS "lsdhdl",
+            NVL(s5.SSL5,0) AS "yscl",
+            NVL(s6.SSL6,0) AS "cszfl",
+            NVL(s8.SSL8,0) AS "fszfl"
+        FROM device_info d
+                 LEFT JOIN screen_stats s1 ON d.QH = s1.sbbh
+                 LEFT JOIN his_screen_stats s2 ON d.QH = s2.sbbh
+                 LEFT JOIN examine_stats s3 ON d.QH = s3.sbbh
+                 LEFT JOIN his_examine_stats s4 ON d.QH = s4.sbbh
+                 LEFT JOIN surveil_stats s5 ON d.QH = s5.sbbh
+                 LEFT JOIN err_stats s6 ON d.QH = s6.sbbh
+                 LEFT JOIN screen_warn s7 ON d.QH = s7.sbbh
+                 LEFT JOIN examine_err s8 ON d.QH = s8.sbbh
+
+    </select>
+
+<!--    判断是否存在-->
+    <select id="selectDevInUseBySbbh" parameterType="DevInUse" resultMap="DevInUseResult">
+        select * from dev_in_use t
+        where t.sbbh = #{sbbh} and t.yjrq = #{strDayStart}
+    </select>
+
+<!--    更新-->
+    <select id="updateDevInUseBySbbh" parameterType="DevInUse" resultMap="DevInUseResult">
+        update dev_in_use
+        <trim prefix="SET" suffixOverrides=",">
+            yjrq = #{strDayStart},
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="bmbm != null">bmbm = #{bmbm},</if>
+            <if test="sbbh != null">sbbh = #{sbbh},</if>
+            <if test="sblx != null">sblx = #{sblx},</if>
+            <if test="syzt != null">syzt = #{syzt},</if>
+            <if test="sbmc != null">sbmc = #{sbmc},</if>
+            <if test="zpl != null">zpl = #{zpl},</if>
+            <if test="syl != null">syl = #{syl},</if>
+            <if test="dcsl != null">dcsl = #{dcsl},</if>
+            <if test="lsdcsl != null">lsdcsl = #{lsdcsl},</if>
+            <if test="dhdl != null">dhdl = #{dhdl},</if>
+            <if test="lsdhdl != null">lsdhdl = #{lsdhdl},</if>
+            <if test="yscl != null">yscl = #{yscl},</if>
+            <if test="cszfl != null">cszfl = #{cszfl},</if>
+            <if test="fszfl != null">fszfl = #{fszfl},</if>
+            <if test="cjsj != null">cjsj = #{cjsj},</if>
+        </trim>
+        where sbbh = #{sbbh} and yjrq = #{strDayStart}
+    </select>
+
+    <select id="selectDevInUseById" parameterType="Long" resultMap="DevInUseResult">
+        <include refid="selectDevInUseVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertDevInUse" parameterType="DevInUse" useGeneratedKeys="true" keyProperty="id">
+        insert into dev_in_use
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">yjrq,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="bmbm != null">bmbm,</if>
+            <if test="sbbh != null">sbbh,</if>
+            <if test="sblx != null">sblx,</if>
+            <if test="syzt != null">syzt,</if>
+            <if test="sbmc != null">sbmc,</if>
+            <if test="zpl != null">zpl,</if>
+            <if test="syl != null">syl,</if>
+            <if test="dcsl != null">dcsl,</if>
+            <if test="lsdcsl != null">lsdcsl,</if>
+            <if test="dhdl != null">dhdl,</if>
+            <if test="lsdhdl != null">lsdhdl,</if>
+            <if test="yscl != null">yscl,</if>
+            <if test="cszfl != null">cszfl,</if>
+            <if test="fszfl != null">fszfl,</if>
+            <if test="cjsj != null">cjsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">#{yjrq},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="bmbm != null">#{bmbm},</if>
+            <if test="sbbh != null">#{sbbh},</if>
+            <if test="sblx != null">#{sblx},</if>
+            <if test="syzt != null">#{syzt},</if>
+            <if test="sbmc != null">#{sbmc},</if>
+            <if test="zpl != null">#{zpl},</if>
+            <if test="syl != null">#{syl},</if>
+            <if test="dcsl != null">#{dcsl},</if>
+            <if test="lsdcsl != null">#{lsdcsl},</if>
+            <if test="dhdl != null">#{dhdl},</if>
+            <if test="lsdhdl != null">#{lsdhdl},</if>
+            <if test="yscl != null">#{yscl},</if>
+            <if test="cszfl != null">#{cszfl},</if>
+            <if test="fszfl != null">#{fszfl},</if>
+            <if test="cjsj != null">#{cjsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDevInUse" parameterType="DevInUse">
+        update dev_in_use
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yjrq != null">yjrq = #{yjrq},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="bmbm != null">bmbm = #{bmbm},</if>
+            <if test="sbbh != null">sbbh = #{sbbh},</if>
+            <if test="sblx != null">sblx = #{sblx},</if>
+            <if test="syzt != null">syzt = #{syzt},</if>
+            <if test="sbmc != null">sbmc = #{sbmc},</if>
+            <if test="zpl != null">zpl = #{zpl},</if>
+            <if test="syl != null">syl = #{syl},</if>
+            <if test="dcsl != null">dcsl = #{dcsl},</if>
+            <if test="lsdcsl != null">lsdcsl = #{lsdcsl},</if>
+            <if test="dhdl != null">dhdl = #{dhdl},</if>
+            <if test="lsdhdl != null">lsdhdl = #{lsdhdl},</if>
+            <if test="yscl != null">yscl = #{yscl},</if>
+            <if test="cszfl != null">cszfl = #{cszfl},</if>
+            <if test="fszfl != null">fszfl = #{fszfl},</if>
+            <if test="cjsj != null">cjsj = #{cjsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDevInUseById" parameterType="Long">
+        delete from dev_in_use where id = #{id}
+    </delete>
+
+    <delete id="deleteDevInUseByIds" parameterType="String">
+        delete from dev_in_use where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

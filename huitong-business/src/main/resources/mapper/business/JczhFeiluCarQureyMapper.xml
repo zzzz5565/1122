@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.JczhFeiluCarQureyMapper">
+
+    <resultMap type="JczhFeiluCarQurey" id="JczhFeiluCarQureyResult">
+        <result property="id"    column="id"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="xm"    column="xm"    />
+        <result property="num"    column="num"    />
+        <result property="cxsj"    column="cxsj"    />
+    </resultMap>
+
+    <sql id="selectJczhFeiluCarQureyVo">
+        select id, glbm, xm, num, cxsj from jczh_feilu_car_qurey
+    </sql>
+
+    <select id="selectJczhFeiluCarQureyList" parameterType="JczhFeiluCarQurey" resultMap="JczhFeiluCarQureyResult">
+        <include refid="selectJczhFeiluCarQureyVo"/>
+        <where>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="xm != null  and xm != ''"> and xm = #{xm}</if>
+            <if test="num != null "> and num = #{num}</if>
+            <if test="cxsj != null "> and cxsj = #{cxsj}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(cxsj,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(cxsj,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+    <select id="selectJczhFeiluCarQureyLists" parameterType="JczhFeiluCarQurey" resultMap="JczhFeiluCarQureyResult">
+        select (select BMMC from FRM_TMS_DEPARTMENT t where t.glbm=L.GLBM) glbm,L.xm, count(*) num
+        from tfc_query_log L
+        where L.hphm is not null and L.hphm not like '鲁%'
+        and L.hphm not like '?%'
+        and L.hphm not like '#%'
+        and not REGEXP_LIKE(SUBSTR(L.hphm,0,1),'[A-Z]')
+        and not REGEXP_LIKE(SUBSTR(L.hphm,0,1),'[a-z]')
+        and not REGEXP_LIKE(SUBSTR(L.hphm,0,1),'[0-9]')
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and L.cxsj >= to_date(#{params.beginTime},'yyyy-mm-dd')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and to_date(#{params.endTime},'yyyy-mm-dd') >= L.cxsj
+        </if>
+        group by glbm,xm
+    </select>
+
+    <select id="selectJczhFeiluCarQureyById" parameterType="Long" resultMap="JczhFeiluCarQureyResult">
+        <include refid="selectJczhFeiluCarQureyVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertJczhFeiluCarQurey" parameterType="JczhFeiluCarQurey" useGeneratedKeys="true" keyProperty="id">
+        insert into jczh_feilu_car_qurey
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">glbm,</if>
+            <if test="xm != null">xm,</if>
+            <if test="num != null">num,</if>
+            <if test="cxsj != null">cxsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">#{glbm},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="num != null">#{num},</if>
+            <if test="cxsj != null">#{cxsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateJczhFeiluCarQurey" parameterType="JczhFeiluCarQurey">
+        update jczh_feilu_car_qurey
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="num != null">num = #{num},</if>
+            <if test="cxsj != null">cxsj = #{cxsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteJczhFeiluCarQureyById" parameterType="Long">
+        delete from jczh_feilu_car_qurey where id = #{id}
+    </delete>
+
+    <delete id="deleteJczhFeiluCarQureyByIds" parameterType="String">
+        delete from jczh_feilu_car_qurey where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

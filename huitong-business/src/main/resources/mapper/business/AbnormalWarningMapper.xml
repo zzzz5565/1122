@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.AbnormalWarningMapper">
+
+    <resultMap type="AbnormalWarning" id="AbnormalWarningResult">
+        <result property="id"    column="id"    />
+        <result property="qh"    column="qh"    />
+        <result property="bm"    column="bm"    />
+        <result property="bh"    column="bh"    />
+        <result property="mc"    column="mc"    />
+        <result property="wf"    column="wf"    />
+        <result property="rq"    column="rq"    />
+        <result property="sl"    column="sl"    />
+    </resultMap>
+
+    <sql id="selectAbnormalWarningVo">
+        select id, qh, bm, bh, mc, wf, rq, sl from abnormal_warning
+    </sql>
+
+    <select id="selectAbnormalWarningList" parameterType="AbnormalWarning" resultMap="AbnormalWarningResult">
+        <include refid="selectAbnormalWarningVo"/>
+        <where>
+            <if test="qh != null  and qh != ''"> and qh = #{qh}</if>
+            <if test="bm != null  and bm != ''"> and bm = #{bm}</if>
+            <if test="bh != null  and bh != ''"> and bh = #{bh}</if>
+            <if test="mc != null  and mc != ''"> and mc = #{mc}</if>
+            <if test="wf != null  and wf != ''"> and wf = #{wf}</if>
+            <if test="rq != null "> and rq = #{rq}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(rq,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(rq,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+    <select id="selectAbnormalWarningLists" parameterType="AbnormalWarning" resultMap="AbnormalWarningResult">
+        select t.qh, t.bm, tt.bh, tt.mc, tt.wf, tt.rq, nvl(tt.sl, 0) as sl
+        from (select glbm as qh, bmmc as bm from fre_dep group by glbm, bmmc) t
+        left join (select qh, bh, mc, wf, rq, sum(sl) as sl
+        from (
+        -- 监控屏幕异常表
+        select substr(fxjg, 0, 6) as qh,
+        sbbh as bh,
+        wfdz as mc,
+        wfxw as wf,
+        to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss') as rq,
+        count(1) as sl
+        from vio_surveil_screen_err
+        where sbbh is not null
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and wfsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and wfsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        group by substr(fxjg, 0, 6), sbbh, wfdz, wfxw
+        union all
+        -- 监控屏幕实时表
+        select substr(fxjg, 0, 6),
+        sbbh,
+        wfdz,
+        wfxw,
+        to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss') as rq,
+        count(1)
+        from vio_surveil_screen
+        where sbbh is not null
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and wfsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and wfsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        group by substr(fxjg, 0, 6), sbbh, wfdz, wfxw
+        union all
+        -- 监控屏幕历史表
+        select substr(fxjg, 0, 6),
+        sbbh,
+        wfdz,
+        wfxw,
+        to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss') as rq,
+        count(1)
+        from vio_surveil_screen_his
+        where sbbh is not null
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and wfsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and wfsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        group by substr(fxjg, 0, 6), sbbh, wfdz, wfxw
+        -- 其他5个表结构类似，依次添加union all部分（需补充剩余表）
+        union all
+        -- 监控屏幕异常表
+        select substr(fxjg, 0, 6) as qh,
+        sbbh as bh,
+        wfdz as mc,
+        wfxw as wf,
+        to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss') as rq,
+        count(1) as sl
+        from vio_surveil_examine
+        where sbbh is not null
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and wfsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and wfsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        group by substr(fxjg, 0, 6), sbbh, wfdz, wfxw
+        union all
+        -- 监控屏幕实时表
+        select substr(fxjg, 0, 6),
+        sbbh,
+        wfdz,
+        wfxw,
+        to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss') as rq,
+        count(1)
+        from vio_surveil_examine_his
+        where sbbh is not null
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and wfsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and wfsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        group by substr(fxjg, 0, 6), sbbh, wfdz, wfxw
+        union all
+        -- 监控屏幕历史表
+        select substr(fxjg, 0, 6),
+        sbbh,
+        wfdz,
+        wfxw,
+        to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss') as rq,
+        count(1)
+        from vio_surveil_examine_err
+        where sbbh is not null
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and wfsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and wfsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        group by substr(fxjg, 0, 6), sbbh, wfdz, wfxw
+        -- 其他5个表结构类似，依次添加union all部分（需补充剩余表）
+        union all
+        -- 监控屏幕实时表
+        select substr(fxjg, 0, 6),
+        sbbh,
+        wfdz,
+        wfxw,
+        to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss') as rq,
+        count(1)
+        from vio_surveil
+        where sbbh is not null
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and wfsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and wfsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        group by substr(fxjg, 0, 6), sbbh, wfdz, wfxw
+        union all
+        -- 监控屏幕实时表
+        select substr(fxjg, 0, 6),
+        sbbh,
+        wfdz,
+        wfxw,
+        to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss') as rq,
+        count(1)
+        from vio_surveil_warn
+        where sbbh is not null
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and wfsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and wfsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd HH24:mi:ss')
+        </if>
+        group by substr(fxjg, 0, 6), sbbh, wfdz, wfxw
+        ) combined_data
+        where 1=1
+        <if test="qh != null and qh != ''">
+            and qh = #{qh}
+        </if>
+        <if test="bm != null and bm != ''">
+            and bm = #{bm}
+        </if>
+        <if test="bh != null and bh != ''">
+            and bh like '%' || #{bh} || '%'
+        </if>
+        <if test="mc != null and mc != ''">
+            and mc like '%' || #{mc} || '%'
+        </if>
+        <if test="wf != null and wf != ''">
+            and wf like '%' || #{wf} || '%'
+        </if>
+        group by qh, bh, mc, wf, rq
+        having sum(sl) >= #{sl}
+        ) tt
+        on t.qh = tt.qh
+        order by sl desc
+    </select>
+
+    <select id="selectAbnormalWarningById" parameterType="Long" resultMap="AbnormalWarningResult">
+        <include refid="selectAbnormalWarningVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertAbnormalWarning" parameterType="AbnormalWarning" useGeneratedKeys="true" keyProperty="id">
+        insert into abnormal_warning
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="qh != null">qh,</if>
+            <if test="bm != null">bm,</if>
+            <if test="bh != null">bh,</if>
+            <if test="mc != null">mc,</if>
+            <if test="wf != null">wf,</if>
+            <if test="rq != null">rq,</if>
+            <if test="sl != null">sl,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="qh != null">#{qh},</if>
+            <if test="bm != null">#{bm},</if>
+            <if test="bh != null">#{bh},</if>
+            <if test="mc != null">#{mc},</if>
+            <if test="wf != null">#{wf},</if>
+            <if test="rq != null">#{rq},</if>
+            <if test="sl != null">#{sl},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAbnormalWarning" parameterType="AbnormalWarning">
+        update abnormal_warning
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="qh != null">qh = #{qh},</if>
+            <if test="bm != null">bm = #{bm},</if>
+            <if test="bh != null">bh = #{bh},</if>
+            <if test="mc != null">mc = #{mc},</if>
+            <if test="wf != null">wf = #{wf},</if>
+            <if test="rq != null">rq = #{rq},</if>
+            <if test="sl != null">sl = #{sl},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAbnormalWarningById" parameterType="Long">
+        delete from abnormal_warning where id = #{id}
+    </delete>
+
+    <delete id="deleteAbnormalWarningByIds" parameterType="String">
+        delete from abnormal_warning where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

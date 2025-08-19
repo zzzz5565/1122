@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('抓拍量异常明细')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+<!--            <div class="col-sm-12 search-collapse">-->
+<!--                <form id="formId">-->
+<!--                    <input type="hidden" id="yjlx" name="yjlx" th:value="${yjlx}">-->
+<!--                    <div class="select-list">-->
+<!--                        <ul>-->
+<!--                            <li th:if="${yjlx != null and yjlx != ''}">-->
+<!--                                <label>预警类型：</label>-->
+<!--                                <select id="yjlx_select" th:with="type=${@dict.getType('warning_type')}" disabled style="appearance: none; -webkit-appearance: none; -moz-appearance: none;">-->
+<!--                                    <option value="">所有</option>-->
+<!--                                    <option th:each="dict : ${type}"-->
+<!--                                            th:text="${dict.dictLabel}"-->
+<!--                                            th:value="${dict.dictValue}"-->
+<!--                                            th:selected="${dict.dictValue == yjlx}"></option>-->
+<!--                                </select>-->
+<!--                            </li>-->
+<!--                            <li th:if="${yjlx != null and yjlx != ''}">-->
+<!--                                <label>预警日期：</label>-->
+<!--                                <input type="text" name="yjrq" th:value="${yjrq}" readonly/>-->
+<!--                            </li>-->
+<!--                            <li>-->
+<!--                                <label>管理部门：</label>-->
+<!--                                <select name="glbm" th:with="type=${@dict.getType('device_glbm')}">-->
+<!--                                    <option value="">所有</option>-->
+<!--                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--                                </select>-->
+<!--                            </li>-->
+<!--                            <li>-->
+<!--                                <label>设备编号：</label>-->
+<!--                                <input type="text" name="sbbh"/>-->
+<!--                            </li>-->
+<!--&lt;!&ndash;                            <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <label>设备类型：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <select name="sblx" th:with="type=${@dict.getType('device_type')}">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <option value="">所有</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </select>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </li>&ndash;&gt;-->
+<!--                            <li>-->
+<!--                                <label>设备名称：</label>-->
+<!--                                <input type="text" name="sbmc"/>-->
+<!--                            </li>-->
+<!--&lt;!&ndash;                            <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <label>设备品牌：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <input type="text" name="sbpp"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </li>&ndash;&gt;-->
+<!--                            <li>-->
+<!--                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
+<!--&lt;!&ndash;                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>&ndash;&gt;-->
+<!--                            </li>-->
+<!--                        </ul>-->
+<!--                    </div>-->
+<!--                </form>-->
+<!--            </div>-->
+
+<!--            <div class="btn-group-sm" id="toolbar" role="group">-->
+<!--&lt;!&ndash;                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="business:devVioEquipment:add">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <i class="fa fa-plus"></i> 添加&ndash;&gt;-->
+<!--&lt;!&ndash;                </a>&ndash;&gt;-->
+<!--&lt;!&ndash;                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="business:devVioEquipment:edit">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <i class="fa fa-edit"></i> 修改&ndash;&gt;-->
+<!--&lt;!&ndash;                </a>&ndash;&gt;-->
+<!--&lt;!&ndash;                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="business:devVioEquipment:remove">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <i class="fa fa-remove"></i> 删除&ndash;&gt;-->
+<!--&lt;!&ndash;                </a>&ndash;&gt;-->
+<!--                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="business:devVioEquipment:export">-->
+<!--                    <i class="fa fa-download"></i> 导出Excel-->
+<!--                </a>-->
+<!--&lt;!&ndash;                <a class="btn btn-warning" onclick="$.table.exportZip()" shiro:hasPermission="business:devVioEquipment:export">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <i class="fa fa-download"></i> 导出Zip&ndash;&gt;-->
+<!--&lt;!&ndash;                </a>&ndash;&gt;-->
+<!--            </div>-->
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('business:devVioEquipment:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('business:devVioEquipment:remove')}]];
+        var prefix = ctx + "business/devVioEquipment";
+
+        var sbbh = [[${sbbh}]];
+        var sblx = [[${sblx}]];
+
+        $(function() {
+            var options = {
+                url: prefix + "/xqList/"+sbbh,
+                exportUrl: prefix + "/export",
+                exportZipUrl: prefix + "/exportZip",
+                modalName: "异常明细",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: 'sbbh',
+                    title: '设备编号'
+                },
+                {
+                    field: 'wfxw',
+                    title: '违法行为'
+                },
+                {
+                    field: 'shuliang',
+                    title: '数量',
+                }]
+            };
+            $.table.init(options);
+        });
+
+    </script>
+</body>
+</html>

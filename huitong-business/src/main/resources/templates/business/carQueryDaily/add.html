@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增日查询量高出全省日查询量倍数统计')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-carQueryDaily-add">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">用户代号：</label>
+                <div class="col-sm-8">
+                    <input name="yhdh" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">姓名：</label>
+                <div class="col-sm-8">
+                    <input name="xm" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">管理部门：</label>
+                <div class="col-sm-8">
+                    <input name="glbm" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">查询时间：</label>
+                <div class="col-sm-8">
+                    <input name="sj" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">单日最大查询：</label>
+                <div class="col-sm-8">
+                    <input name="drzd" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">高出全省日查询量倍数：</label>
+                <div class="col-sm-8">
+                    <input name="bs" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "business/carQueryDaily"
+        $("#form-carQueryDaily-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                let encrypJson = formToJsonEncryp('#form-carQueryDaily-add');
+                $.operate.saveJson(prefix + "/add",encrypJson);
+            }
+        }
+    </script>
+</body>
+</html>

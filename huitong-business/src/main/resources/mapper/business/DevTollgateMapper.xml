@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DevTollgateMapper">
+
+    <resultMap type="DevTollgate" id="DevTollgateResult">
+        <result property="id"    column="id"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="bmmc"    column="bmmc"    />
+        <result property="xzqh"    column="xzqh"    />
+        <result property="kkbh"    column="kkbh"    />
+        <result property="kkmc"    column="kkmc"    />
+        <result property="kklx"    column="kklx"    />
+        <result property="dllx"    column="dllx"    />
+        <result property="dlmc"    column="dlmc"    />
+        <result property="lkh"    column="lkh"    />
+        <result property="kkjd"    column="kkjd"    />
+        <result property="kkwd"    column="kkwd"    />
+        <result property="zpfx"    column="zpfx"    />
+        <result property="kkzt"    column="kkzt"    />
+        <result property="gxsj"    column="gxsj"    />
+    </resultMap>
+
+    <sql id="selectDevTollgateVo">
+        select id, glbm, bmmc, xzqh, kkbh, kkmc, kklx, dllx, dlmc, lkh, kkjd, kkwd, zpfx, kkzt, gxsj from dev_tollgate
+    </sql>
+
+    <select id="selectDevTollgateList" parameterType="DevTollgate" resultMap="DevTollgateResult">
+        select t.id, t.glbm, t.bmmc, t.xzqh, t.kkbh, t.kkmc, t.kklx, t.dllx, t.dlmc, t.lkh, t.kkjd, t.kkwd, t.zpfx, case when kkzt = 1 then '正常' end kkzt, t.gxsj
+        from dev_tollgate t
+        <if test="yjlx != null  and yjlx != ''">
+            join dev_vio_equ_warning w on t.kkbh = w.sbbh and w.yjlx = #{yjlx}
+            <if test="yjrq != null  and yjrq != ''">
+                and w.yjrq = #{yjrq}
+            </if>
+        </if>
+        <where>
+            <if test="glbm != null  and glbm != ''"> and t.glbm = #{glbm}</if>
+            <if test="bmmc != null  and bmmc != ''"> and t.bmmc = #{bmmc}</if>
+            <if test="xzqh != null  and xzqh != ''"> and t.xzqh = #{xzqh}</if>
+            <if test="kkbh != null  and kkbh != ''"> and t.kkbh = #{kkbh}</if>
+            <if test="kkmc != null  and kkmc != ''"> and t.kkmc = #{kkmc}</if>
+            <if test="kklx != null  and kklx != ''"> and t.kklx = #{kklx}</if>
+            <if test="dllx != null  and dllx != ''"> and t.dllx = #{dllx}</if>
+            <if test="dlmc != null  and dlmc != ''"> and t.dlmc = #{dlmc}</if>
+            <if test="lkh != null  and lkh != ''"> and t.lkh = #{lkh}</if>
+            <if test="kkjd != null  and kkjd != ''"> and t.kkjd = #{kkjd}</if>
+            <if test="kkwd != null  and kkwd != ''"> and t.kkwd = #{kkwd}</if>
+            <if test="zpfx != null  and zpfx != ''"> and t.zpfx = #{zpfx}</if>
+            <if test="kkzt != null  and kkzt != ''"> and t.kkzt = #{kkzt}</if>
+            <if test="gxsj != null "> and t.gxsj = #{gxsj}</if>
+        </where>
+    </select>
+
+    <select id="selectDevTollgateListSlave" parameterType="DevTollgate" resultMap="DevTollgateResult">
+        select
+            t.glbm,
+            e.bmmc,
+            t.xzqh,
+            t.kkbh,
+            t.kkmc,
+            (select dmsm1 from frm_code where xtlb = '61' and dmlb = '1001' and t.kklx = dmz) kklx,
+            (select dmsm1 from frm_code where xtlb = '00' and dmlb = '3124' and t.dllx = dmz) dllx,
+            t.dldm,
+            t.dlmc,
+            t.lkh,
+            t.kkjd,
+            t.kkwd,
+            case when zpfx = 1 then '车头' when zpfx = 2 then '车尾'when zpfx = 3 then '头尾' end zpfx,
+            kkzt,
+            t.gxsj
+        from dev_tollgate t
+        left join FRM_TMS_DEPARTMENT e on t.glbm=e.glbm
+    </select>
+
+    <select id="selectDevTollgateById" parameterType="Long" resultMap="DevTollgateResult">
+        <include refid="selectDevTollgateVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectDevTollgateByKKbh" parameterType="String" resultMap="DevTollgateResult">
+        <include refid="selectDevTollgateVo"/>
+        where kkbh = #{kkbh}
+    </select>
+
+    <insert id="insertDevTollgate" parameterType="DevTollgate" useGeneratedKeys="true" keyProperty="id">
+        insert into dev_tollgate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">glbm,</if>
+            <if test="bmmc != null">bmmc,</if>
+            <if test="xzqh != null">xzqh,</if>
+            <if test="kkbh != null">kkbh,</if>
+            <if test="kkmc != null">kkmc,</if>
+            <if test="kklx != null">kklx,</if>
+            <if test="dllx != null">dllx,</if>
+            <if test="dlmc != null">dlmc,</if>
+            <if test="lkh != null">lkh,</if>
+            <if test="kkjd != null">kkjd,</if>
+            <if test="kkwd != null">kkwd,</if>
+            <if test="zpfx != null">zpfx,</if>
+            <if test="kkzt != null">kkzt,</if>
+            <if test="gxsj != null">gxsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">#{glbm},</if>
+            <if test="bmmc != null">#{bmmc},</if>
+            <if test="xzqh != null">#{xzqh},</if>
+            <if test="kkbh != null">#{kkbh},</if>
+            <if test="kkmc != null">#{kkmc},</if>
+            <if test="kklx != null">#{kklx},</if>
+            <if test="dllx != null">#{dllx},</if>
+            <if test="dlmc != null">#{dlmc},</if>
+            <if test="lkh != null">#{lkh},</if>
+            <if test="kkjd != null">#{kkjd},</if>
+            <if test="kkwd != null">#{kkwd},</if>
+            <if test="zpfx != null">#{zpfx},</if>
+            <if test="kkzt != null">#{kkzt},</if>
+            <if test="gxsj != null">#{gxsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDevTollgate" parameterType="DevTollgate">
+        update dev_tollgate
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="bmmc != null">bmmc = #{bmmc},</if>
+            <if test="xzqh != null">xzqh = #{xzqh},</if>
+            <if test="kkbh != null">kkbh = #{kkbh},</if>
+            <if test="kkmc != null">kkmc = #{kkmc},</if>
+            <if test="kklx != null">kklx = #{kklx},</if>
+            <if test="dllx != null">dllx = #{dllx},</if>
+            <if test="dlmc != null">dlmc = #{dlmc},</if>
+            <if test="lkh != null">lkh = #{lkh},</if>
+            <if test="kkjd != null">kkjd = #{kkjd},</if>
+            <if test="kkwd != null">kkwd = #{kkwd},</if>
+            <if test="zpfx != null">zpfx = #{zpfx},</if>
+            <if test="kkzt != null">kkzt = #{kkzt},</if>
+            <if test="gxsj != null">gxsj = #{gxsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDevTollgateById" parameterType="Long">
+        delete from dev_tollgate where id = #{id}
+    </delete>
+
+    <delete id="deleteDevTollgateByIds" parameterType="String">
+        delete from dev_tollgate where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

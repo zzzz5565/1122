@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.EvidenceEquRecordMapper">
+
+    <resultMap type="EvidenceEquRecord" id="EvidenceEquRecordResult">
+        <result property="id"    column="id"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="bmmc"    column="bmmc"    />
+        <result property="basl"    column="basl"    />
+        <result property="qysl"    column="qysl"    />
+        <result property="zfsl"    column="zfsl"    />
+        <result property="tysl"    column="tysl"    />
+        <result property="xzdspsl"    column="xzdspsl"    />
+        <result property="ztzcsbspzsl"    column="ztzcsbspzsl"    />
+        <result property="qtztsl"    column="qtztsl"    />
+    </resultMap>
+
+    <sql id="selectEvidenceEquRecordVo">
+        select id, glbm, bmmc, basl, qysl, zfsl, tysl, xzdspsl, ztzcsbspzsl, qtztsl from evidence_equ_record
+    </sql>
+
+    <select id="selectEvidenceEquRecordList" parameterType="EvidenceEquRecord" resultMap="EvidenceEquRecordResult">
+        <include refid="selectEvidenceEquRecordVo"/>
+        <where>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="bmmc != null  and bmmc != ''"> and bmmc like concat('%', #{bmmc}, '%')</if>
+            <if test="basl != null  and basl != ''"> and basl = #{basl}</if>
+            <if test="qysl != null  and qysl != ''"> and qysl = #{qysl}</if>
+            <if test="zfsl != null  and zfsl != ''"> and zfsl = #{zfsl}</if>
+            <if test="tysl != null  and tysl != ''"> and tysl = #{tysl}</if>
+            <if test="xzdspsl != null  and xzdspsl != ''"> and xzdspsl = #{xzdspsl}</if>
+            <if test="ztzcsbspzsl != null  and ztzcsbspzsl != ''"> and ztzcsbspzsl = #{ztzcsbspzsl}</if>
+            <if test="qtztsl != null  and qtztsl != ''"> and qtztsl = #{qtztsl}</if>
+        </where>
+    </select>
+
+    <select id="selectEvidenceEquRecordLists" parameterType="EvidenceEquRecord" resultMap="EvidenceEquRecordResult">
+
+        WITH dep_info AS (
+        SELECT
+        SUBSTR(glbm, 1, 6) AS GM,
+        MAX(bmmc) AS MC
+        FROM fre_dep
+        GROUP BY SUBSTR(glbm, 1, 6)
+        ),
+        equipment_stats AS (
+        SELECT
+        SUBSTR(glbm, 0, 6) AS QH,
+        COUNT(CASE WHEN zt = '1' AND syzt IN ('1','2')
+        AND shyj LIKE '%通过%'
+        AND (spyj LIKE '%同意%' OR spr IS NOT NULL)
+        THEN 1 END) AS enable_cnt,
+        COUNT(CASE WHEN zt = '3' THEN 1 END) AS invalid_cnt,
+        COUNT(CASE WHEN zt = '2' THEN 1 END) AS disable_cnt,
+        COUNT(CASE WHEN zt = '1' THEN 1 END) AS status1_cnt,
+        COUNT(CASE WHEN zt NOT IN ('1','2','3') THEN 1 END) AS other_cnt,
+        COUNT(1) AS total_cnt
+        FROM dev_vio_equipment
+        WHERE glbm LIKE '3706%'
+        GROUP BY SUBSTR(glbm, 0, 6)
+        ),
+        temp_stats AS (
+        SELECT
+        SUBSTR(glbm, 0, 6) AS QH,
+        COUNT(1) AS temp_cnt
+        FROM dev_vio_equipment_temp
+        WHERE glbm LIKE '3706%'
+        GROUP BY SUBSTR(glbm, 0, 6)
+        )
+        SELECT
+        d.GM AS glbm,
+        d.MC AS bmmc,
+        NVL(e.total_cnt, 0) + NVL(t.temp_cnt, 0) AS basl,
+        NVL(e.enable_cnt, 0) AS qysl,
+        NVL(e.invalid_cnt, 0) AS zfsl,
+        NVL(e.disable_cnt, 0) AS tysl,
+        NVL(t.temp_cnt, 0) AS xzdspsl,
+        NVL(e.status1_cnt, 0) - NVL(e.enable_cnt, 0) AS ztzcsbspzsl,
+        NVL(e.other_cnt, 0) AS qtztsl
+        FROM dep_info d
+        LEFT JOIN equipment_stats e ON d.GM = e.QH
+        LEFT JOIN temp_stats t ON d.GM = t.QH
+       <where>
+            <if test="glbm != null  and glbm != ''"> AND SUBSTR(d.GM, 0, 6) = #{glbm}</if>
+            <if test="bmmc != null  and bmmc != ''"> AND d.MC like '%' || #{bmmc} || '%'</if>
+        </where>
+    </select>
+
+    <select id="selectEvidenceEquRecordById" parameterType="Long" resultMap="EvidenceEquRecordResult">
+        <include refid="selectEvidenceEquRecordVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertEvidenceEquRecord" parameterType="EvidenceEquRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into evidence_equ_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">glbm,</if>
+            <if test="bmmc != null">bmmc,</if>
+            <if test="basl != null">basl,</if>
+            <if test="qysl != null">qysl,</if>
+            <if test="zfsl != null">zfsl,</if>
+            <if test="tysl != null">tysl,</if>
+            <if test="xzdspsl != null">xzdspsl,</if>
+            <if test="ztzcsbspzsl != null">ztzcsbspzsl,</if>
+            <if test="qtztsl != null">qtztsl,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">#{glbm},</if>
+            <if test="bmmc != null">#{bmmc},</if>
+            <if test="basl != null">#{basl},</if>
+            <if test="qysl != null">#{qysl},</if>
+            <if test="zfsl != null">#{zfsl},</if>
+            <if test="tysl != null">#{tysl},</if>
+            <if test="xzdspsl != null">#{xzdspsl},</if>
+            <if test="ztzcsbspzsl != null">#{ztzcsbspzsl},</if>
+            <if test="qtztsl != null">#{qtztsl},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEvidenceEquRecord" parameterType="EvidenceEquRecord">
+        update evidence_equ_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="bmmc != null">bmmc = #{bmmc},</if>
+            <if test="basl != null">basl = #{basl},</if>
+            <if test="qysl != null">qysl = #{qysl},</if>
+            <if test="zfsl != null">zfsl = #{zfsl},</if>
+            <if test="tysl != null">tysl = #{tysl},</if>
+            <if test="xzdspsl != null">xzdspsl = #{xzdspsl},</if>
+            <if test="ztzcsbspzsl != null">ztzcsbspzsl = #{ztzcsbspzsl},</if>
+            <if test="qtztsl != null">qtztsl = #{qtztsl},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEvidenceEquRecordById" parameterType="Long">
+        delete from evidence_equ_record where id = #{id}
+    </delete>
+
+    <delete id="deleteEvidenceEquRecordByIds" parameterType="String">
+        delete from evidence_equ_record where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

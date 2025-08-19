@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DevNoPassCarMapper">
+
+    <resultMap type="DevNoPassCar" id="DevNoPassCarResult">
+        <result property="id"    column="id"    />
+        <result property="bmmc"    column="bmmc"    />
+        <result property="kkbh"    column="kkbh"    />
+        <result property="kkmc"    column="kkmc"    />
+        <result property="gxsj"    column="gxsj"    />
+        <result property="tjrq"    column="tjrq"    />
+    </resultMap>
+
+    <sql id="selectDevNoPassCarVo">
+        select id, bmmc, kkbh, kkmc, gxsj, tjrq from dev_no_pass_car
+    </sql>
+
+    <select id="selectDevNoPassCarList" parameterType="DevNoPassCar" resultMap="DevNoPassCarResult">
+        <include refid="selectDevNoPassCarVo"/>
+        <where>
+            <if test="bmmc != null  and bmmc != ''"> and bmmc = #{bmmc}</if>
+            <if test="kkbh != null  and kkbh != ''"> and kkbh = #{kkbh}</if>
+            <if test="kkmc != null  and kkmc != ''"> and kkmc = #{kkmc}</if>
+            <if test="gxsj != null "> and gxsj = #{gxsj}</if>
+            <if test="tjrq != null "> and tjrq = #{tjrq}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(tjrq,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(tjrq,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDevNoPassCarLists" parameterType="DevNoPassCar" resultMap="DevNoPassCarResult">
+
+        SELECT
+        a.bmmc,
+        t.kkbh,
+        t.kkmc,
+        t.gxsj
+        FROM dev_tollgate t
+        JOIN FRM_TMS_DEPARTMENT a ON t.glbm = a.glbm
+        WHERE T.KKZT = 1
+        AND T.KKBH NOT IN (
+           SELECT kkbh
+           FROM Stat_Pass_Qa_Day dd
+           WHERE 1=1
+           <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+               AND TJRQ >= TO_CHAR(to_date(#{params.beginTime}, 'yyyy-mm-dd'), 'yyyymmdd' )
+           </if>
+           <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+               AND TJRQ &lt;= TO_CHAR(to_date(#{params.endTime}, 'yyyy-mm-dd'), 'yyyymmdd' )
+           </if>
+           GROUP BY kkbh
+        )
+        <if test="bmmc != null  and bmmc != ''"> and a.bmmc = #{bmmc}</if>
+        <if test="kkbh != null  and kkbh != ''"> and t.kkbh = #{kkbh}</if>
+        <if test="kkmc != null  and kkmc != ''"> and t.kkmc = #{kkmc}</if>
+    </select>
+
+    <select id="selectDevNoPassCarById" parameterType="Long" resultMap="DevNoPassCarResult">
+        <include refid="selectDevNoPassCarVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertDevNoPassCar" parameterType="DevNoPassCar" useGeneratedKeys="true" keyProperty="id">
+        insert into dev_no_pass_car
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bmmc != null">bmmc,</if>
+            <if test="kkbh != null">kkbh,</if>
+            <if test="kkmc != null">kkmc,</if>
+            <if test="gxsj != null">gxsj,</if>
+            <if test="tjrq != null">tjrq,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bmmc != null">#{bmmc},</if>
+            <if test="kkbh != null">#{kkbh},</if>
+            <if test="kkmc != null">#{kkmc},</if>
+            <if test="gxsj != null">#{gxsj},</if>
+            <if test="tjrq != null">#{tjrq},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDevNoPassCar" parameterType="DevNoPassCar">
+        update dev_no_pass_car
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bmmc != null">bmmc = #{bmmc},</if>
+            <if test="kkbh != null">kkbh = #{kkbh},</if>
+            <if test="kkmc != null">kkmc = #{kkmc},</if>
+            <if test="gxsj != null">gxsj = #{gxsj},</if>
+            <if test="tjrq != null">tjrq = #{tjrq},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDevNoPassCarById" parameterType="Long">
+        delete from dev_no_pass_car where id = #{id}
+    </delete>
+
+    <delete id="deleteDevNoPassCarByIds" parameterType="String">
+        delete from dev_no_pass_car where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

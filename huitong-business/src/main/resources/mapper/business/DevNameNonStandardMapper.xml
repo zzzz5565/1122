@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DevNameNonStandardMapper">
+
+    <resultMap type="DevNameNonStandard" id="DevNameNonStandardResult">
+        <result property="id"    column="id"    />
+        <result property="kkbh"    column="kkbh"    />
+        <result property="kklx"    column="kklx"    />
+        <result property="kkmc"    column="kkmc"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="bmmc"    column="bmmc"    />
+        <result property="xzqh"    column="xzqh"    />
+        <result property="dldm"    column="dldm"    />
+        <result property="dllx"    column="dllx"    />
+        <result property="lkh"    column="lkh"    />
+        <result property="dlmc"    column="dlmc"    />
+        <result property="kkjd"    column="kkjd"    />
+        <result property="kkwd"    column="kkwd"    />
+        <result property="zpfx"    column="zpfx"    />
+        <result property="kkzt"    column="kkzt"    />
+        <result property="gxsj"    column="gxsj"    />
+    </resultMap>
+
+    <sql id="selectDevNameNonStandardVo">
+        select id, kkbh, kklx, kkmc, glbm, bmmc, xzqh, dldm, dllx, lkh, dlmc, kkjd, kkwd, zpfx, kkzt, gxsj from dev_name_non_standard
+    </sql>
+
+    <select id="selectDevNameNonStandardList" parameterType="DevNameNonStandard" resultMap="DevNameNonStandardResult">
+        <include refid="selectDevNameNonStandardVo"/>
+        <where>
+            <if test="kkbh != null  and kkbh != ''"> and kkbh = #{kkbh}</if>
+            <if test="kklx != null  and kklx != ''"> and kklx = #{kklx}</if>
+            <if test="xzqh != null  and xzqh != ''"> and xzqh = #{xzqh}</if>
+            <if test="dllx != null  and dllx != ''"> and dllx = #{dllx}</if>
+            <if test="gxsj != null "> and gxsj = #{gxsj}</if>
+        </where>
+    </select>
+    <select id="selectDevNameNonStandardLists" parameterType="DevNameNonStandard" resultMap="DevNameNonStandardResult">
+        select t.kkbh,
+               (select dmsm1 from frm_code where xtlb = '61' and dmlb = '1001' and t.kklx = dmz) kklx,
+               t.kkmc,
+               t.glbm,
+               e.bmmc,
+               t.xzqh,
+               t.dldm,
+               (select dmsm1 from frm_code where xtlb = '00' and dmlb = '3124' and t.dllx = dmz) dllx,
+               t.lkh,
+               t.dlmc,
+               t.kkjd,
+               t.kkwd,
+               case when zpfx = 1 then '车头' when zpfx = 2 then '车尾'when zpfx = 3 then '头尾' end zpfx,
+               case when kkzt = 1 then '正常' end kkzt,
+               t.gxsj
+        from dev_tollgate t left join FRM_TMS_DEPARTMENT e on t.glbm=e.glbm
+        where kkzt = 1 and t.kkmc not like '山东省%' and t.kkmc not like '烟台%'
+        <if test="kkbh != null  and kkbh != ''"> and t.kkbh = #{kkbh}</if>
+        <if test="kklx != null  and kklx != ''"> and t.kklx = #{kklx}</if>
+        <if test="xzqh != null  and xzqh != ''"> and t.xzqh = #{xzqh}</if>
+        <if test="bmmc != null  and bmmc != ''"> and and e.bmmc like '%' || #{bmmc} || '%'</if>
+    </select>
+
+    <select id="selectDevNameNonStandardById" parameterType="Long" resultMap="DevNameNonStandardResult">
+        <include refid="selectDevNameNonStandardVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertDevNameNonStandard" parameterType="DevNameNonStandard" useGeneratedKeys="true" keyProperty="id">
+        insert into dev_name_non_standard
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="kkbh != null">kkbh,</if>
+            <if test="kklx != null">kklx,</if>
+            <if test="kkmc != null">kkmc,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="bmmc != null">bmmc,</if>
+            <if test="xzqh != null">xzqh,</if>
+            <if test="dldm != null">dldm,</if>
+            <if test="dllx != null">dllx,</if>
+            <if test="lkh != null">lkh,</if>
+            <if test="dlmc != null">dlmc,</if>
+            <if test="kkjd != null">kkjd,</if>
+            <if test="kkwd != null">kkwd,</if>
+            <if test="zpfx != null">zpfx,</if>
+            <if test="kkzt != null">kkzt,</if>
+            <if test="gxsj != null">gxsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="kkbh != null">#{kkbh},</if>
+            <if test="kklx != null">#{kklx},</if>
+            <if test="kkmc != null">#{kkmc},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="bmmc != null">#{bmmc},</if>
+            <if test="xzqh != null">#{xzqh},</if>
+            <if test="dldm != null">#{dldm},</if>
+            <if test="dllx != null">#{dllx},</if>
+            <if test="lkh != null">#{lkh},</if>
+            <if test="dlmc != null">#{dlmc},</if>
+            <if test="kkjd != null">#{kkjd},</if>
+            <if test="kkwd != null">#{kkwd},</if>
+            <if test="zpfx != null">#{zpfx},</if>
+            <if test="kkzt != null">#{kkzt},</if>
+            <if test="gxsj != null">#{gxsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDevNameNonStandard" parameterType="DevNameNonStandard">
+        update dev_name_non_standard
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="kkbh != null">kkbh = #{kkbh},</if>
+            <if test="kklx != null">kklx = #{kklx},</if>
+            <if test="kkmc != null">kkmc = #{kkmc},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="bmmc != null">bmmc = #{bmmc},</if>
+            <if test="xzqh != null">xzqh = #{xzqh},</if>
+            <if test="dldm != null">dldm = #{dldm},</if>
+            <if test="dllx != null">dllx = #{dllx},</if>
+            <if test="lkh != null">lkh = #{lkh},</if>
+            <if test="dlmc != null">dlmc = #{dlmc},</if>
+            <if test="kkjd != null">kkjd = #{kkjd},</if>
+            <if test="kkwd != null">kkwd = #{kkwd},</if>
+            <if test="zpfx != null">zpfx = #{zpfx},</if>
+            <if test="kkzt != null">kkzt = #{kkzt},</if>
+            <if test="gxsj != null">gxsj = #{gxsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDevNameNonStandardById" parameterType="Long">
+        delete from dev_name_non_standard where id = #{id}
+    </delete>
+
+    <delete id="deleteDevNameNonStandardByIds" parameterType="String">
+        delete from dev_name_non_standard where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

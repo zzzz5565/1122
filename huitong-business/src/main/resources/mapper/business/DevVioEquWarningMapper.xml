@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DevVioEquWarningMapper">
+
+    <resultMap type="DevVioEquWarning" id="DevVioEquWarningResult">
+        <result property="id"    column="id"    />
+        <result property="yjrq"    column="yjrq"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="sbbh"    column="sbbh"    />
+        <result property="yjlx"    column="yjlx"    />
+        <result property="yjllx"    column="yjllx"    />
+        <result property="shuliang"    column="shuliang"    />
+        <result property="cjsj"    column="cjsj"    />
+        <result property="wfxw"    column="wfxw"    />
+        <result property="wsjsc"    column="wsjsc"    />
+        <result property="ztyc"    column="ztyc"    />
+        <result property="zplyc"    column="zplyc"    />
+        <result property="sjjz"    column="sjjz"    />
+        <result property="sjjj"    column="sjjj"    />
+        <result property="csyc"    column="csyc"    />
+    </resultMap>
+
+    <sql id="selectDevVioEquWarningVo">
+        select id, yjrq, glbm, sbbh, yjlx, shuliang, cjsj from dev_vio_equ_warning
+    </sql>
+
+    <select id="selectDevVioEquWarningList" parameterType="DevVioEquWarning" resultMap="DevVioEquWarningResult">
+        select yjrq, yjllx, yjlx, dict_label as yjlxname, count(id) as shuliang
+        from dev_vio_equ_warning w
+        join sys_dict_data sd on w.yjlx = sd.dict_value and sd.dict_type = 'warning_type'
+        <where>
+            <if test="yjrq != null "> and yjrq = #{yjrq}</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="sbbh != null  and sbbh != ''"> and sbbh = #{sbbh}</if>
+            <if test="yjlx != null "> and yjlx = #{yjlx}</if>
+            <if test="yjllx != null "> and yjllx = #{yjllx}</if>
+            <if test="shuliang != null "> and shuliang = #{shuliang}</if>
+            <if test="cjsj != null "> and cjsj = #{cjsj}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                    AND yjrq &gt;= #{params.beginTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND yjrq &lt;= #{params.endTime}
+            </if>
+        </where>
+        group by yjrq, yjlx order by yjrq desc, yjllx, yjlx
+    </select>
+
+    <select id="selectDevVioEquWarningLists" parameterType="DevVioEquWarning" resultMap="DevVioEquWarningResult">
+        select t.sbbh, t.wfxw, count(*) shuliang from dev_vio_equ_warning t
+        where t.sbbh = #{sbbh}
+        group by t.sbbh, t.wfxw
+        order by shuliang desc
+    </select>
+
+    <select id="selectDevVioEquWarningById" parameterType="Long" resultMap="DevVioEquWarningResult">
+        <include refid="selectDevVioEquWarningVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertDevVioEquWarning" parameterType="DevVioEquWarning" useGeneratedKeys="true" keyProperty="id">
+        insert into dev_vio_equ_warning
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">yjrq,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="sbbh != null">sbbh,</if>
+            <if test="yjlx != null">yjlx,</if>
+            <if test="shuliang != null">shuliang,</if>
+            <if test="cjsj != null">cjsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">#{yjrq},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="sbbh != null">#{sbbh},</if>
+            <if test="yjlx != null">#{yjlx},</if>
+            <if test="shuliang != null">#{shuliang},</if>
+            <if test="cjsj != null">#{cjsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDevVioEquWarning" parameterType="DevVioEquWarning">
+        update dev_vio_equ_warning
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yjrq != null">yjrq = #{yjrq},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="sbbh != null">sbbh = #{sbbh},</if>
+            <if test="yjlx != null">yjlx = #{yjlx},</if>
+            <if test="shuliang != null">shuliang = #{shuliang},</if>
+            <if test="cjsj != null">cjsj = #{cjsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDevVioEquWarningById" parameterType="Long">
+        delete from dev_vio_equ_warning where id = #{id}
+    </delete>
+
+    <delete id="deleteDevVioEquWarningByIds" parameterType="String">
+        delete from dev_vio_equ_warning where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <insert id="insertDevVioEquWarningBatch" parameterType="java.util.List">
+        insert into dev_vio_equ_warning
+        (yjrq, sbbh, glbm, yjllx, yjlx, shuliang, cjsj)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.yjrq}, #{item.sbbh}, #{item.glbm}, #{item.yjllx},
+            #{item.yjlx}, #{item.shuliang}, #{item.cjsj})
+        </foreach>
+    </insert>
+
+    <insert id="insertAbnormalWarningData" parameterType="java.util.List">
+        insert into dev_vio_equ_warning
+        (yjrq, sbbh, glbm, yjllx, yjlx, shuliang, cjsj, wfxw)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.yjrq}, #{item.sbbh}, #{item.glbm}, #{item.yjllx},
+            #{item.yjlx}, #{item.shuliang}, #{item.cjsj}, #{item.wfxw})
+        </foreach>
+    </insert>
+
+    <delete id="deleteDevVioEquWarningBatch" parameterType="DevVioEquWarning" >
+        delete from dev_vio_equ_warning where yjrq = #{yjrq} and yjlx = #{yjlx}
+    </delete>
+</mapper>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DeviceNoDataMapper">
+
+    <resultMap type="DeviceNoData" id="DeviceNoDataResult">
+        <result property="id"    column="id"    />
+        <result property="bmmc"    column="bmmc"    />
+        <result property="sbmc"    column="sbmc"    />
+        <result property="sbbh"    column="sbbh"    />
+        <result property="cjsj"    column="cjsj"    />
+        <result property="wfsj"    column="wfsj"    />
+    </resultMap>
+
+    <sql id="selectDeviceNoDataVo">
+        select id, bmmc, sbmc, sbbh, cjsj, wfsj from device_no_data
+    </sql>
+
+    <select id="selectDeviceNoDataList" parameterType="DeviceNoData" resultMap="DeviceNoDataResult">
+        <include refid="selectDeviceNoDataVo"/>
+        <where>
+            <if test="bmmc != null  and bmmc != ''"> and bmmc like concat('%', #{bmmc}, '%')</if>
+            <if test="sbmc != null  and sbmc != ''"> and sbmc like concat('%', #{sbmc}, '%')</if>
+            <if test="sbbh != null  and sbbh != ''"> and sbbh = #{sbbh}</if>
+            <if test="wfsj != null "> and wfsj = #{wfsj}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(wfsj,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(wfsj,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeviceNoDataLists" parameterType="DeviceNoData" resultMap="DeviceNoDataResult">
+        select b.bmmc,a.sbmc,a.sbbh,a.cjsj
+        from dev_vio_equipment a
+        join FRE_DEP b on substr(a.glbm,1,6) = b.glbm
+        where a.sbbh not in (
+        select sbbh from (select sbbh,shs+wshs+zfs+scs zs
+        from equipment_online
+        where 1=1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and wfsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            AND wfsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        )
+        )
+        and a.zt = 1 and sbmc not like '%警务通%'
+        <if test="bmmc != null  and bmmc != ''"> and b.bmmc like '%' || #{bmmc} || '%'</if>
+        <if test="sbmc != null  and sbmc != ''"> and a.sbmc like '%' || #{sbmc} || '%'</if>
+        <if test="sbbh != null  and sbbh != ''"> and a.sbbh = #{sbbh}</if>
+        order by b.bmmc
+    </select>
+
+    <select id="selectDeviceNoDataById" parameterType="Long" resultMap="DeviceNoDataResult">
+        <include refid="selectDeviceNoDataVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertDeviceNoData" parameterType="DeviceNoData" useGeneratedKeys="true" keyProperty="id">
+        insert into device_no_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bmmc != null">bmmc,</if>
+            <if test="sbmc != null">sbmc,</if>
+            <if test="sbbh != null">sbbh,</if>
+            <if test="cjsj != null">cjsj,</if>
+            <if test="wfsj != null">wfsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bmmc != null">#{bmmc},</if>
+            <if test="sbmc != null">#{sbmc},</if>
+            <if test="sbbh != null">#{sbbh},</if>
+            <if test="cjsj != null">#{cjsj},</if>
+            <if test="wfsj != null">#{wfsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDeviceNoData" parameterType="DeviceNoData">
+        update device_no_data
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bmmc != null">bmmc = #{bmmc},</if>
+            <if test="sbmc != null">sbmc = #{sbmc},</if>
+            <if test="sbbh != null">sbbh = #{sbbh},</if>
+            <if test="cjsj != null">cjsj = #{cjsj},</if>
+            <if test="wfsj != null">wfsj = #{wfsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDeviceNoDataById" parameterType="Long">
+        delete from device_no_data where id = #{id}
+    </delete>
+
+    <delete id="deleteDeviceNoDataByIds" parameterType="String">
+        delete from device_no_data where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

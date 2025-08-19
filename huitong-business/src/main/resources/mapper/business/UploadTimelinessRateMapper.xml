@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.UploadTimelinessRateMapper">
+
+    <resultMap type="UploadTimelinessRate" id="UploadTimelinessRateResult">
+        <result property="id"    column="id"    />
+        <result property="bmmc"    column="bmmc"    />
+        <result property="kkbh"    column="kkbh"    />
+        <result property="kkmc"    column="kkmc"    />
+        <result property="timenum"    column="timenum"    />
+        <result property="totalnum"    column="totalnum"    />
+        <result property="timerate"    column="timerate"    />
+        <result property="tjts"    column="tjts"    />
+        <result property="tjrq"    column="tjrq"    />
+    </resultMap>
+
+    <sql id="selectUploadTimelinessRateVo">
+        select id, bmmc, kkbh, kkmc, timenum, totalnum, timerate, tjts, tjrq from upload_timeliness_rate
+    </sql>
+
+    <select id="selectUploadTimelinessRateList" parameterType="UploadTimelinessRate" resultMap="UploadTimelinessRateResult">
+        <include refid="selectUploadTimelinessRateVo"/>
+        <where>
+            <if test="bmmc != null  and bmmc != ''"> and bmmc = #{bmmc}</if>
+            <if test="kkbh != null  and kkbh != ''"> and kkbh = #{kkbh}</if>
+            <if test="kkmc != null  and kkmc != ''"> and kkmc = #{kkmc}</if>
+            <if test="timenum != null "> and timenum >= #{timenum}</if>
+            <if test="totalnum != null "> and totalnum = #{totalnum}</if>
+            <if test="timerate != null  and timerate != ''"> and timerate = #{timerate}</if>
+            <if test="tjts != null "> and tjts = #{tjts}</if>
+            <if test="tjrq != null "> and tjrq = #{tjrq}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(tjrq,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(tjrq,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+    <select id="selectUploadTimelinessRateLists" parameterType="UploadTimelinessRate" resultMap="UploadTimelinessRateResult">
+        SELECT
+        REGEXP_REPLACE(a.bmmc, '大队.*', '大队') AS bmmc,
+        b.kkbh,
+        b.kkmc,
+        SUM(in8s + in30s + in60s + in3m) AS timenum,
+        SUM(c.txclzs) AS totalnum,
+        to_char(
+                round(
+                        case
+                            when sum(c.txclzs) = 0 then 0
+                            else sum(in8s + in30s + in60s + in3m) / sum(c.txclzs) * 100
+                            end, 1
+                    ), 'fm999999999999999990.0'
+            ) || '%' as timerate,
+        COUNT(DISTINCT c.tjrq) AS tjts
+        FROM
+        frm_tms_department a
+        JOIN
+        dev_tollgate b ON a.glbm = b.glbm
+        JOIN
+        stat_pass_qa_day c ON b.kkbh = c.kkbh
+        WHERE
+        tjrq >= TO_CHAR(TO_DATE(#{params.beginTime}, 'yyyy-mm-dd'), 'yyyymmdd')
+        AND tjrq &lt;= TO_CHAR(TO_DATE(#{params.endTime}, 'yyyy-mm-dd'), 'yyyymmdd')
+        AND b.kkzt = '1'
+        GROUP BY
+        REGEXP_REPLACE(a.bmmc, '大队.*', '大队'),
+        b.kkbh,
+        b.kkmc
+        HAVING
+        ROUND(
+        CASE
+        WHEN SUM(c.txclzs) = 0 THEN 0
+        ELSE SUM(in8s + in30s + in60s + in3m) / SUM(c.txclzs) * 100
+        END, 1
+        ) >= #{timenum}
+    </select>
+
+    <select id="selectUploadTimelinessRateById" parameterType="Long" resultMap="UploadTimelinessRateResult">
+        <include refid="selectUploadTimelinessRateVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertUploadTimelinessRate" parameterType="UploadTimelinessRate" useGeneratedKeys="true" keyProperty="id">
+        insert into upload_timeliness_rate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bmmc != null">bmmc,</if>
+            <if test="kkbh != null">kkbh,</if>
+            <if test="kkmc != null">kkmc,</if>
+            <if test="timenum != null">timenum,</if>
+            <if test="totalnum != null">totalnum,</if>
+            <if test="timerate != null">timerate,</if>
+            <if test="tjts != null">tjts,</if>
+            <if test="tjrq != null">tjrq,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bmmc != null">#{bmmc},</if>
+            <if test="kkbh != null">#{kkbh},</if>
+            <if test="kkmc != null">#{kkmc},</if>
+            <if test="timenum != null">#{timenum},</if>
+            <if test="totalnum != null">#{totalnum},</if>
+            <if test="timerate != null">#{timerate},</if>
+            <if test="tjts != null">#{tjts},</if>
+            <if test="tjrq != null">#{tjrq},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUploadTimelinessRate" parameterType="UploadTimelinessRate">
+        update upload_timeliness_rate
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bmmc != null">bmmc = #{bmmc},</if>
+            <if test="kkbh != null">kkbh = #{kkbh},</if>
+            <if test="kkmc != null">kkmc = #{kkmc},</if>
+            <if test="timenum != null">timenum = #{timenum},</if>
+            <if test="totalnum != null">totalnum = #{totalnum},</if>
+            <if test="timerate != null">timerate = #{timerate},</if>
+            <if test="tjts != null">tjts = #{tjts},</if>
+            <if test="tjrq != null">tjrq = #{tjrq},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUploadTimelinessRateById" parameterType="Long">
+        delete from upload_timeliness_rate where id = #{id}
+    </delete>
+
+    <delete id="deleteUploadTimelinessRateByIds" parameterType="String">
+        delete from upload_timeliness_rate where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

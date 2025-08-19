@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改执法取证设备备案统计')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-evidenceEquRecord-edit" th:object="${evidenceEquRecord}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">大队编号：</label>
+                <div class="col-sm-8">
+                    <select name="glbm" class="form-control m-b" th:with="type=${@dict.getType('device_glbm')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{glbm}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">大队名称：</label>
+                <div class="col-sm-8">
+                    <input name="bmmc" th:field="*{bmmc}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">备案数量：</label>
+                <div class="col-sm-8">
+                    <input name="basl" th:field="*{basl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">启用数量：</label>
+                <div class="col-sm-8">
+                    <input name="qysl" th:field="*{qysl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">作废数量：</label>
+                <div class="col-sm-8">
+                    <input name="zfsl" th:field="*{zfsl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">停用数量：</label>
+                <div class="col-sm-8">
+                    <input name="tysl" th:field="*{tysl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">新增待审批数量：</label>
+                <div class="col-sm-8">
+                    <input name="xzdspsl" th:field="*{xzdspsl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">状态正常设备审批中数量：</label>
+                <div class="col-sm-8">
+                    <input name="ztzcsbspzsl" th:field="*{ztzcsbspzsl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">其它状态(上级停用)数量：</label>
+                <div class="col-sm-8">
+                    <input name="qtztsl" th:field="*{qtztsl}" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "business/evidenceEquRecord";
+        $("#form-evidenceEquRecord-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                let encrypJson = formToJsonEncryp('#form-evidenceEquRecord-edit');
+                $.operate.saveJson(prefix + "/edit",encrypJson);
+            }
+        }
+    </script>
+</body>
+</html>

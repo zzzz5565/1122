@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.FuseDetailMapper">
+
+    <resultMap type="FuseDetail" id="FuseDetailResult">
+        <result property="id"    column="id"    />
+        <result property="sfzmhm"    column="sfzmhm"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="xm"    column="xm"    />
+        <result property="num"    column="num"    />
+        <result property="rdkssj"    column="rdkssj"    />
+    </resultMap>
+
+    <sql id="selectFuseDetailVo">
+        select id, sfzmhm, glbm, xm, num, rdkssj from fuse_detail
+    </sql>
+
+    <select id="selectFuseDetailList" parameterType="FuseDetail" resultMap="FuseDetailResult">
+        <include refid="selectFuseDetailVo"/>
+        <where>
+            <if test="sfzmhm != null  and sfzmhm != ''"> and sfzmhm = #{sfzmhm}</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="xm != null  and xm != ''"> and xm = #{xm}</if>
+            <if test="num != null "> and num = #{num}</if>
+            <if test="rdkssj != null "> and rdkssj = #{rdkssj}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(rdkssj,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(rdkssj,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+    <select id="selectFuseDetailLists" parameterType="FuseDetail" resultMap="FuseDetailResult">
+        select d.sfzmhm,(select bmmc from frm_tms_department t where t.glbm = d.glbm)glbm,
+               d.xm,count(*) num
+        from fuse_record d
+        where 1=1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and rdkssj >= to_date(#{params.beginTime},'yyyy-mm-dd')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and to_date(#{params.endTime},'yyyy-mm-dd') >= rdkssj
+        </if>
+        group by d.sfzmhm,d.glbm,d.xm
+    </select>
+
+    <select id="selectFuseDetailById" parameterType="Long" resultMap="FuseDetailResult">
+        <include refid="selectFuseDetailVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertFuseDetail" parameterType="FuseDetail" useGeneratedKeys="true" keyProperty="id">
+        insert into fuse_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sfzmhm != null">sfzmhm,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="xm != null">xm,</if>
+            <if test="num != null">num,</if>
+            <if test="rdkssj != null">rdkssj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sfzmhm != null">#{sfzmhm},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="num != null">#{num},</if>
+            <if test="rdkssj != null">#{rdkssj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFuseDetail" parameterType="FuseDetail">
+        update fuse_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sfzmhm != null">sfzmhm = #{sfzmhm},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="num != null">num = #{num},</if>
+            <if test="rdkssj != null">rdkssj = #{rdkssj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFuseDetailById" parameterType="Long">
+        delete from fuse_detail where id = #{id}
+    </delete>
+
+    <delete id="deleteFuseDetailByIds" parameterType="String">
+        delete from fuse_detail where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

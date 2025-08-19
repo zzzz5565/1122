@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.CarQueryMonthMapper">
+
+    <resultMap type="CarQueryMonth" id="CarQueryMonthResult">
+        <result property="id"    column="id"    />
+        <result property="yhdh"    column="yhdh"    />
+        <result property="xm"    column="xm"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="fl"    column="fl"    />
+        <result property="zs"    column="zs"    />
+        <result property="bl"    column="bl"    />
+        <result property="sj"    column="sj"    />
+    </resultMap>
+
+    <sql id="selectCarQueryMonthVo">
+        select id, yhdh, xm, glbm, fl, zs, bl from car_query_month
+    </sql>
+
+    <select id="selectCarQueryMonthList" parameterType="CarQueryMonth" resultMap="CarQueryMonthResult">
+        <include refid="selectCarQueryMonthVo"/>
+        <where>
+            <if test="yhdh != null  and yhdh != ''"> and yhdh = #{yhdh}</if>
+            <if test="xm != null  and xm != ''"> and xm = #{xm}</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="fl != null  and fl != ''"> and fl = #{fl}</if>
+            <if test="zs != null  and zs != ''"> and zs = #{zs}</if>
+            <if test="bl != null  and bl != ''"> and bl = #{bl}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and sj >= STR_TO_DATE(#{params.beginTime}, '%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                and sj &lt; DATE_ADD(STR_TO_DATE(#{params.endTime}, '%Y-%m-%d %H:%i:%s'), INTERVAL 1 DAY)
+            </if>
+        </where>
+    </select>
+    <select id="selectCarQueryMonthLists" parameterType="CarQueryMonth" resultMap="CarQueryMonthResult">
+        select yhdh,glbm,xm,fl,zs,(fl/zs)*100 bl
+        from (
+        select a.yhdh,
+        (select bmmc from trff_app.FRM_TMS_DEPARTMENT d where d.GLBM = a.GLBM) glbm,
+        a.xm,a.fl,d.zs from (
+        select
+        yhdh,glbm,xm,count(*)fl
+        from trff_app.FRM_TMS_IMPT_DATA_ACCESS_LOG
+        where 1 = 1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and xrsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and xrsj &lt; to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')+1
+        </if>
+        and hphm not like '鲁%'
+        and not REGEXP_LIKE(SUBSTR(hphm,0,1),'[A-Z]')
+        and hphm is not null
+        group by yhdh,glbm,xm) a
+        join(
+        select
+        yhdh,glbm,xm,count(*) zs
+        from trff_app.FRM_TMS_IMPT_DATA_ACCESS_LOG
+        where 1 = 1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and xrsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and xrsj &lt; to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')+1
+        </if>
+        and hphm is not null
+        group by yhdh,glbm,xm
+        )d on a.yhdh=d.yhdh) where zs >=300 and ((fl/zs)*100) >50
+
+    </select>
+    <select id="selectCarQueryMonthById" parameterType="Long" resultMap="CarQueryMonthResult">
+        <include refid="selectCarQueryMonthVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCarQueryMonth" parameterType="CarQueryMonth" useGeneratedKeys="true" keyProperty="id">
+        insert into car_query_month
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">yhdh,</if>
+            <if test="xm != null">xm,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="fl != null">fl,</if>
+            <if test="zs != null">zs,</if>
+            <if test="bl != null">bl,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">#{yhdh},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="fl != null">#{fl},</if>
+            <if test="zs != null">#{zs},</if>
+            <if test="bl != null">#{bl},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCarQueryMonth" parameterType="CarQueryMonth">
+        update car_query_month
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yhdh != null">yhdh = #{yhdh},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="fl != null">fl = #{fl},</if>
+            <if test="zs != null">zs = #{zs},</if>
+            <if test="bl != null">bl = #{bl},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCarQueryMonthById" parameterType="Long">
+        delete from car_query_month where id = #{id}
+    </delete>
+
+    <delete id="deleteCarQueryMonthByIds" parameterType="String">
+        delete from car_query_month where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

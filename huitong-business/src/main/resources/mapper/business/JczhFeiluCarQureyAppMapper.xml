@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.JczhFeiluCarQureyAppMapper">
+
+    <resultMap type="JczhFeiluCarQureyApp" id="JczhFeiluCarQureyAppResult">
+        <result property="id"    column="id"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="yhdh"    column="yhdh"    />
+        <result property="xm"    column="xm"    />
+        <result property="num"    column="num"    />
+        <result property="rksj"    column="rksj"    />
+    </resultMap>
+
+    <sql id="selectJczhFeiluCarQureyAppVo">
+        select id, glbm, yhdh, num, rksj from jczh_feilu_car_qurey_app
+    </sql>
+
+    <select id="selectJczhFeiluCarQureyAppList" parameterType="JczhFeiluCarQureyApp" resultMap="JczhFeiluCarQureyAppResult">
+        <include refid="selectJczhFeiluCarQureyAppVo"/>
+        <where>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="yhdh != null  and yhdh != ''"> and yhdh = #{yhdh}</if>
+            <if test="num != null "> and num = #{num}</if>
+            <if test="rksj != null "> and rksj = #{rksj}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(rksj,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(rksj,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+    <select id="selectJczhFeiluCarQureyAppLists" parameterType="JczhFeiluCarQureyApp" resultMap="JczhFeiluCarQureyAppResult">
+        select (select bmmc from frm_tms_department t where t.glbm=L.glbm) glbm,L.yhdh,(select xm from frm_tms_sysuser where rybh = L.yhdh) xm,count(*) num
+        from app_pass_query_log L
+        where L.cxhphm is not null and L.cxhphm not like '鲁%'
+        and L.cxhphm not like '?%'
+        and L.cxhphm not like '#%'
+        and not REGEXP_LIKE(SUBSTR(L.cxhphm,0,1),'[A-Z]')
+        and not REGEXP_LIKE(SUBSTR(L.cxhphm,0,1),'[a-z]')
+        and not REGEXP_LIKE(SUBSTR(L.cxhphm,0,1),'[0-9]')
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and rksj >= to_date(#{params.beginTime},'yyyy-mm-dd')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and to_date(#{params.endTime},'yyyy-mm-dd') >= rksj
+        </if>
+        group by glbm,yhdh
+    </select>
+
+    <select id="selectJczhFeiluCarQureyAppById" parameterType="Long" resultMap="JczhFeiluCarQureyAppResult">
+        <include refid="selectJczhFeiluCarQureyAppVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertJczhFeiluCarQureyApp" parameterType="JczhFeiluCarQureyApp" useGeneratedKeys="true" keyProperty="id">
+        insert into jczh_feilu_car_qurey_app
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">glbm,</if>
+            <if test="yhdh != null">yhdh,</if>
+            <if test="num != null">num,</if>
+            <if test="rksj != null">rksj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">#{glbm},</if>
+            <if test="yhdh != null">#{yhdh},</if>
+            <if test="num != null">#{num},</if>
+            <if test="rksj != null">#{rksj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateJczhFeiluCarQureyApp" parameterType="JczhFeiluCarQureyApp">
+        update jczh_feilu_car_qurey_app
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="yhdh != null">yhdh = #{yhdh},</if>
+            <if test="num != null">num = #{num},</if>
+            <if test="rksj != null">rksj = #{rksj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteJczhFeiluCarQureyAppById" parameterType="Long">
+        delete from jczh_feilu_car_qurey_app where id = #{id}
+    </delete>
+
+    <delete id="deleteJczhFeiluCarQureyAppByIds" parameterType="String">
+        delete from jczh_feilu_car_qurey_app where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

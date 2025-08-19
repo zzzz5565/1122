@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.CheckSameCarMapper">
+
+    <resultMap type="CheckSameCar" id="CheckSameCarResult">
+        <result property="id"    column="id"    />
+        <result property="account"    column="account"    />
+        <result property="xm"    column="xm"    />
+        <result property="bmmc"    column="bmmc"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="ip"    column="ip"    />
+        <result property="hphm"    column="hphm"    />
+        <result property="sl"    column="sl"    />
+        <result property="timeDay"    column="time_day"    />
+    </resultMap>
+
+    <sql id="selectCheckSameCarVo">
+        select id, account, xm, bmmc, glbm, ip, hphm, sl, time_day from check_same_car
+    </sql>
+
+    <select id="selectCheckSameCarList" parameterType="CheckSameCar" resultMap="CheckSameCarResult">
+        <include refid="selectCheckSameCarVo"/>
+        <where>
+            <if test="account != null  and account != ''"> and account = #{account}</if>
+            <if test="xm != null  and xm != ''"> and xm = #{xm}</if>
+            <if test="bmmc != null  and bmmc != ''"> and bmmc = #{bmmc}</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="ip != null  and ip != ''"> and ip = #{ip}</if>
+            <if test="hphm != null  and hphm != ''"> and hphm = #{hphm}</if>
+            <if test="sl != null "> and sl = #{sl}</if>
+            <if test="timeDay != null "> and time_day = #{timeDay}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(time_day,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(time_day,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectCheckSameCarLists" parameterType="CheckSameCar" resultMap="CheckSameCarResult">
+        select * from (
+            select account,
+                   (select e.name from ehl_ebp_user e where e.account=a.account and e.is_del =0) xm,
+                   (select c.bmmc from trff_app.frm_department c
+                    where c.glbm = (select e.org_id from ehl_ebp_user e where e.account=a.account and e.is_del =0)) bmmc,
+                   (select e.org_id from ehl_ebp_user e where e.account=a.account and e.is_del =0) glbm,
+                   ip,
+                   substr(a.create_time,0,13) time_day,
+                   carnumber as hphm,
+                   count(*) sl
+            from(
+                    select
+                        o.account,
+                        to_char(o.create_time,'YYYY-MM-DD hh:mi') create_time,
+                        o.ip,
+                        o.carnumber
+                    from traffic_cloud.log_operation_pass o
+                    where o.carnumber is not null and o.page_no = 1
+                    <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                        and create_time >= to_date(#{params.beginTime}, 'yyyy-mm-dd')
+                    </if>
+                    <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                        and create_time &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd')
+                    </if>
+                    <if test="account != null  and account != ''"> and o.account = #{account}</if>
+                    group by account,to_char(o.create_time,'YYYY-MM-DD hh:mi'),ip,carnumber
+                )a
+            group by account,substr(a.create_time,0,13),ip,carnumber
+        )a where sl > 5 order by sl desc
+    </select>
+
+    <select id="selectCheckSameCarById" parameterType="Long" resultMap="CheckSameCarResult">
+        <include refid="selectCheckSameCarVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCheckSameCar" parameterType="CheckSameCar" useGeneratedKeys="true" keyProperty="id">
+        insert into check_same_car
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="account != null">account,</if>
+            <if test="xm != null">xm,</if>
+            <if test="bmmc != null">bmmc,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="ip != null">ip,</if>
+            <if test="hphm != null">hphm,</if>
+            <if test="sl != null">sl,</if>
+            <if test="timeDay != null">time_day,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="account != null">#{account},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="bmmc != null">#{bmmc},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="ip != null">#{ip},</if>
+            <if test="hphm != null">#{hphm},</if>
+            <if test="sl != null">#{sl},</if>
+            <if test="timeDay != null">#{timeDay},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCheckSameCar" parameterType="CheckSameCar">
+        update check_same_car
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="account != null">account = #{account},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="bmmc != null">bmmc = #{bmmc},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="ip != null">ip = #{ip},</if>
+            <if test="hphm != null">hphm = #{hphm},</if>
+            <if test="sl != null">sl = #{sl},</if>
+            <if test="timeDay != null">time_day = #{timeDay},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCheckSameCarById" parameterType="Long">
+        delete from check_same_car where id = #{id}
+    </delete>
+
+    <delete id="deleteCheckSameCarByIds" parameterType="String">
+        delete from check_same_car where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

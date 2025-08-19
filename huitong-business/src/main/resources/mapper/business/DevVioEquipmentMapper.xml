@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DevVioEquipmentMapper">
+
+    <resultMap type="DevVioEquipment" id="DevVioEquipmentResult">
+        <result property="id"    column="id"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="bmmc"    column="bmmc"    />
+        <result property="sbbh"    column="sbbh"    />
+        <result property="sblx"    column="sblx"    />
+        <result property="sbmc"    column="sbmc"    />
+        <result property="zt"    column="zt"    />
+        <result property="zt2"    column="zt2"    />
+        <result property="szdd"    column="szdd"    />
+        <result property="sbpp"    column="sbpp"    />
+        <result property="qyrq"    column="qyrq"    />
+        <result property="shsj"    column="shsj"    />
+        <result property="gxsj"    column="gxsj"    />
+        <result property="shuliang"    column="shuliang"    />
+        <result property="daily"    column="daily"    />
+    </resultMap>
+
+    <sql id="selectDevVioEquipmentVo">
+        select id, glbm, bmmc, sbbh, sblx, sbmc, zt, szdd, sbpp, qyrq from dev_vio_equipment
+    </sql>
+
+    <select id="selectDevVioEquipmentList" parameterType="DevVioEquipment" resultMap="DevVioEquipmentResult">
+        select e.id, e.glbm, e.bmmc, e.sbbh, e.sblx, e.sbmc, e.zt, e.szdd, e.sbpp, e.qyrq
+        <if test="yjlx != null and yjlx != ''">
+            ,case when w.yjlx = 1 then w.shuliang else null end as shuliang
+            ,case when w.yjlx = 7 then w.shuliang else null end as zt2
+        </if>
+        from dev_vio_equipment e
+        left join sys_dict_data sd on e.sblx = sd.dict_value and sd.dict_type = 'device_type'
+        <if test="yjlx != null  and yjlx != ''">
+            join dev_vio_equ_warning w on e.sbbh = w.sbbh and w.yjlx = #{yjlx}
+            <if test="yjrq != null  and yjrq != ''">
+                and w.yjrq = #{yjrq}
+            </if>
+        </if>
+        <where>
+            <if test="glbm != null  and glbm != ''"> and e.glbm like concat('%', #{glbm}, '%')</if>
+            <if test="bmmc != null  and bmmc != ''"> and e.bmmc like concat('%', #{bmmc}, '%')</if>
+            <if test="sbbh != null  and sbbh != ''"> and e.sbbh like concat('%', #{sbbh}, '%')</if>
+            <if test="sblx != null  and sblx != ''"> and e.sblx = #{sblx}</if>
+            <if test="sbmc != null  and sbmc != ''"> and e.sbmc like concat('%', #{sbmc}, '%')</if>
+            <if test="zt != null "> and e.zt = #{zt}</if>
+            <if test="szdd != null  and szdd != ''"> and e.szdd like concat('%', #{szdd}, '%')</if>
+            <if test="sbpp != null  and sbpp != ''"> and e.sbpp like concat('%', #{sbpp}, '%')</if>
+            <if test="qyrq != null "> and e.qyrq = #{qyrq}</if>
+        </where>
+    </select>
+
+    <select id="selectDevVioEquipmentLists" parameterType="DevVioEquipment" resultMap="DevVioEquipmentResult">
+        select e.glbm, e.bmmc, e.sbbh, e.sblx, e.sbmc, sum(w.shuliang)
+        from dev_vio_equipment e
+        left join sys_dict_data sd on e.sblx = sd.dict_value and sd.dict_type = 'device_type'
+        <if test="yjlx != null  and yjlx != ''">
+            join dev_vio_equ_warning w on e.sbbh = w.sbbh and w.yjlx = #{yjlx}
+            <if test="yjrq != null  and yjrq != ''">
+                and w.yjrq = #{yjrq}
+            </if>
+        </if>
+        <where>
+            <if test="glbm != null  and glbm != ''"> and e.glbm like concat('%', #{glbm}, '%')</if>
+            <if test="bmmc != null  and bmmc != ''"> and e.bmmc like concat('%', #{bmmc}, '%')</if>
+            <if test="sbbh != null  and sbbh != ''"> and e.sbbh like concat('%', #{sbbh}, '%')</if>
+            <if test="sblx != null  and sblx != ''"> and e.sblx = #{sblx}</if>
+            <if test="sbmc != null  and sbmc != ''"> and e.sbmc like concat('%', #{sbmc}, '%')</if>
+            <if test="zt != null "> and e.zt = #{zt}</if>
+            <if test="szdd != null  and szdd != ''"> and e.szdd like concat('%', #{szdd}, '%')</if>
+            <if test="sbpp != null  and sbpp != ''"> and e.sbpp like concat('%', #{sbpp}, '%')</if>
+            <if test="qyrq != null "> and e.qyrq = #{qyrq}</if>
+        </where>
+        group by
+    </select>
+    <select id="selectDevVioEquipmentListSlave" parameterType="DevVioEquipment" resultMap="DevVioEquipmentResult">
+        select e.glbm, b.bmmc as bmmc, e.sbbh, e.sblx, e.sbmc, e.zt, e.szdd, e.sbpp, e.qyrq, e.shsj, e.gxsj
+        from dev_vio_equipment e
+        left join FRM_TMS_DEPARTMENT b on e.glbm=b.glbm
+    </select>
+    <select id="selectDevVioEquipmentById" parameterType="Long" resultMap="DevVioEquipmentResult">
+        <include refid="selectDevVioEquipmentVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectDevVioEquipmentBySbbh" parameterType="String" resultMap="DevVioEquipmentResult">
+        <include refid="selectDevVioEquipmentVo"/>
+        where sbbh = #{sbbh}
+    </select>
+
+    <insert id="insertDevVioEquipment" parameterType="DevVioEquipment" useGeneratedKeys="true" keyProperty="id">
+        insert into dev_vio_equipment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">glbm,</if>
+            <if test="bmmc != null">bmmc,</if>
+            <if test="sbbh != null">sbbh,</if>
+            <if test="sblx != null">sblx,</if>
+            <if test="sbmc != null">sbmc,</if>
+            <if test="zt != null">zt,</if>
+            <if test="szdd != null">szdd,</if>
+            <if test="sbpp != null">sbpp,</if>
+            <if test="qyrq != null">qyrq,</if>
+            <if test="shsj != null">shsj,</if>
+            <if test="gxsj != null">gxsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">#{glbm},</if>
+            <if test="bmmc != null">#{bmmc},</if>
+            <if test="sbbh != null">#{sbbh},</if>
+            <if test="sblx != null">#{sblx},</if>
+            <if test="sbmc != null">#{sbmc},</if>
+            <if test="zt != null">#{zt},</if>
+            <if test="szdd != null">#{szdd},</if>
+            <if test="sbpp != null">#{sbpp},</if>
+            <if test="qyrq != null">#{qyrq},</if>
+            <if test="shsj != null">#{shsj},</if>
+            <if test="gxsj != null">#{gxsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDevVioEquipment" parameterType="DevVioEquipment">
+        update dev_vio_equipment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="bmmc != null">bmmc = #{bmmc},</if>
+            <if test="sbbh != null">sbbh = #{sbbh},</if>
+            <if test="sblx != null">sblx = #{sblx},</if>
+            <if test="sbmc != null">sbmc = #{sbmc},</if>
+            <if test="zt != null">zt = #{zt},</if>
+            <if test="szdd != null">szdd = #{szdd},</if>
+            <if test="sbpp != null">sbpp = #{sbpp},</if>
+            <if test="qyrq != null">qyrq = #{qyrq},</if>
+            <if test="shsj != null">qyrq = #{shsj},</if>
+            <if test="gxsj != null">qyrq = #{gxsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDevVioEquipmentById" parameterType="Long">
+        delete from dev_vio_equipment where id = #{id}
+    </delete>
+
+    <delete id="deleteDevVioEquipmentByIds" parameterType="String">
+        delete from dev_vio_equipment where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteDevVioEquipmentByDaily" parameterType="String">
+        delete from dev_vio_equipment_daily where daily = #{daily}
+    </delete>
+
+    <insert id="insertDevVioEquEquipmentDailyBatch" parameterType="java.util.List">
+        insert into dev_vio_equipment_daily
+        (daily, glbm, bmmc, sbbh, sblx, sbmc, zt, szdd, sbpp, qyrq, shsj, gxsj)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.daily}, #{item.glbm}, #{item.bmmc}, #{item.sbbh}, #{item.sblx},
+            #{item.sbmc}, #{item.zt}, #{item.szdd}, #{item.sbpp}, #{item.qyrq},
+            #{item.shsj}, #{item.gxsj})
+        </foreach>
+    </insert>
+
+    <select id="selectDevForStatusChange" parameterType="DevVioEquipment" resultMap="DevVioEquipmentResult">
+        SELECT a.sbbh, a.glbm, a.bmmc, b.zt
+        FROM dev_vio_equipment a
+                 JOIN dev_vio_equipment_daily b
+                      ON a.sbbh = b.sbbh
+                          AND a.zt != b.zt
+         AND b.daily = CURDATE() - INTERVAL 2 DAY
+    </select>
+
+    <select id="selectDevCheckAbnormalSlave" parameterType="DevVioEquipment" resultMap="DevVioEquipmentResult">
+        select sbbh, count(*) shuliang
+        from (
+                 select distinct t.sbbh, to_date(t.sxsj, 'yyyy-mm-dd') as qyrq
+                 From VIO_SURVEIL_SCREEN_ERR t
+                 where t.sxsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+                   and t.sxsj &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')
+        ) t0
+        group by sbbh having count(*) >= 3
+    </select>
+
+    <select id="selectDevReCheckAbnormalSlave" parameterType="DevVioEquipment" resultMap="DevVioEquipmentResult">
+        select sbbh, count(*) shuliang
+        from (
+             select distinct t.sbbh, to_date(t.shsj, 'yyyy-mm-dd') as qyrq
+               From VIO_SURVEIL_EXAMINE_ERR t
+              where t.shsj >= to_date(#{params.beginTime},'yyyy-mm-dd hh24:mi:ss')
+                and t.shsj &lt;= to_date(#{params.endTime},'yyyy-mm-dd hh24:mi:ss')
+        ) t0
+        group by sbbh having count(*) >= 3
+    </select>
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.PassCarQureyMapper">
+
+    <resultMap type="PassCarQurey" id="PassCarQureyResult">
+        <result property="id"    column="id"    />
+        <result property="account"    column="account"    />
+        <result property="num"    column="num"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectPassCarQureyVo">
+        select id, account, num, create_time from pass_car_query
+    </sql>
+
+    <select id="selectPassCarQureyList" parameterType="PassCarQurey" resultMap="PassCarQureyResult">
+        <include refid="selectPassCarQureyVo"/>
+        <where>
+            <if test="account != null  and account != ''"> and account = #{account}</if>
+            <if test="num != null "> and num = #{num}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPassCarQureyLists" parameterType="PassCarQurey" resultMap="PassCarQureyResult">
+        select account, count(*) num
+        from traffic_cloud.log_operation_pass a
+        where carnumber is not null and page_no = 1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and create_time >= to_date(#{params.beginTime}, 'yyyy-mm-dd')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            AND create_time &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd')
+        </if>
+        <if test="account != null  and account != ''"> and account = #{account}</if>
+        group by account
+    </select>
+
+    <select id="selectPassCarQureyLists2" parameterType="PassCarQurey" resultMap="PassCarQureyResult">
+        select account,count(1) num
+        from traffic_cloud.log_operation_pass
+        where to_char(create_time,'hh24') in('22','23','00','01','02','03','04','05')
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and create_time >= to_date(#{params.beginTime}, 'yyyy-mm-dd')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and create_time &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd')
+        </if>
+        group by account
+    </select>
+
+    <select id="selectPassCarQureyById" parameterType="Long" resultMap="PassCarQureyResult">
+        <include refid="selectPassCarQureyVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertPassCarQurey" parameterType="PassCarQurey" useGeneratedKeys="true" keyProperty="id">
+        insert into pass_car_query
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="account != null">account,</if>
+            <if test="num != null">num,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="account != null">#{account},</if>
+            <if test="num != null">#{num},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePassCarQurey" parameterType="PassCarQurey">
+        update pass_car_query
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="account != null">account = #{account},</if>
+            <if test="num != null">num = #{num},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePassCarQureyById" parameterType="Long">
+        delete from pass_car_query where id = #{id}
+    </delete>
+
+    <delete id="deletePassCarQureyByIds" parameterType="String">
+        delete from pass_car_query where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

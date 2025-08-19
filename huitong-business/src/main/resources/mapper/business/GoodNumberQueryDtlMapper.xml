@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.GoodNumberQueryDtlMapper">
+
+    <resultMap type="GoodNumberQueryDtl" id="GoodNumberQueryDtlResult">
+        <result property="id"    column="id"    />
+        <result property="yhdh"    column="yhdh"    />
+        <result property="xm"    column="xm"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="hphm"    column="hphm"    />
+        <result property="hpzl"    column="hpzl"    />
+        <result property="ip"    column="ip"    />
+        <result property="xrsj"    column="xrsj"    />
+    </resultMap>
+
+    <sql id="selectGoodNumberQueryDtlVo">
+        select id, yhdh, xm, glbm, hphm, hpzl, ip, xrsj from good_number_query_dtl
+    </sql>
+
+    <select id="selectGoodNumberQueryDtlList" parameterType="GoodNumberQueryDtl" resultMap="GoodNumberQueryDtlResult">
+        <include refid="selectGoodNumberQueryDtlVo"/>
+        <where>
+            <if test="hphm != null  and hphm != ''"> and hphm like concat('%',#{hphm},'%')</if>
+            <if test="hpzl != null  and hpzl != ''"> and hpzl like concat('%',#{hpzl},'%')</if>
+            <if test="ip != null  and ip != ''"> and ip like concat('%',#{ip},'%')</if>
+            <if test="xrsj != null "> and xrsj = #{xrsj}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and xrsj >= STR_TO_DATE(#{params.beginTime}, '%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                and xrsj &lt; DATE_ADD(STR_TO_DATE(#{params.endTime}, '%Y-%m-%d %H:%i:%s'), INTERVAL 1 DAY)
+            </if>
+        </where>
+    </select>
+
+    <select id="selectGoodNumberQueryDtlLists" parameterType="GoodNumberQueryDtl" resultMap="GoodNumberQueryDtlResult">
+        select t.yhdh,t.xm,(select bmmc from trff_app.frm_tms_department d where d.glbm = t.glbm) glbm, t.hphm,t.hpzl,t.ip,t.xrsj
+        from trff_app.frm_tms_impt_data_access_log t
+        inner join (select yhdh,trunc(xrsj) xrsj
+        from trff_app.frm_tms_impt_data_access_log
+        where 1 = 1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and xrsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and xrsj &lt; to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')+1
+        </if>
+        <if test="hphm != null  and hphm != ''"> and hphm like '%' || #{hphm} || '%'</if>
+        <if test="hpzl != null  and hpzl != ''"> and hpzl like '%' || #{hpzl} || '%'</if>
+        <if test="ip != null  and ip != ''"> and ip like '%' || #{ip} || '%'</if>
+        and regexp_like(hphm, '111|222|333|444|555|888|666|777|999|000')
+        group by yhdh, xm, glbm, trunc(xrsj)
+        having count(*) > 15) a on t.yhdh = a.yhdh and trunc(t.xrsj) = trunc(a.xrsj)
+        where 1=1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and t.xrsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and t.xrsj &lt; to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')+1
+        </if>
+        <if test="hphm != null  and hphm != ''"> and t.hphm like '%' || #{hphm} || '%'</if>
+        <if test="hpzl != null  and hpzl != ''"> and t.hpzl like '%' || #{hpzl} || '%'</if>
+        <if test="ip != null  and ip != ''"> and t.ip like '%' || #{ip} || '%'</if>
+        and regexp_like(t.hphm, '111|222|333|444|555|888|666|777|999|000')
+    </select>
+
+    <select id="selectGoodNumberQueryDtlById" parameterType="Long" resultMap="GoodNumberQueryDtlResult">
+        <include refid="selectGoodNumberQueryDtlVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertGoodNumberQueryDtl" parameterType="GoodNumberQueryDtl" useGeneratedKeys="true" keyProperty="id">
+        insert into good_number_query_dtl
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">yhdh,</if>
+            <if test="xm != null">xm,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="hphm != null">hphm,</if>
+            <if test="hpzl != null">hpzl,</if>
+            <if test="ip != null">ip,</if>
+            <if test="xrsj != null">xrsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">#{yhdh},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="hphm != null">#{hphm},</if>
+            <if test="hpzl != null">#{hpzl},</if>
+            <if test="ip != null">#{ip},</if>
+            <if test="xrsj != null">#{xrsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateGoodNumberQueryDtl" parameterType="GoodNumberQueryDtl">
+        update good_number_query_dtl
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yhdh != null">yhdh = #{yhdh},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="hphm != null">hphm = #{hphm},</if>
+            <if test="hpzl != null">hpzl = #{hpzl},</if>
+            <if test="ip != null">ip = #{ip},</if>
+            <if test="xrsj != null">xrsj = #{xrsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteGoodNumberQueryDtlById" parameterType="Long">
+        delete from good_number_query_dtl where id = #{id}
+    </delete>
+
+    <delete id="deleteGoodNumberQueryDtlByIds" parameterType="String">
+        delete from good_number_query_dtl where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

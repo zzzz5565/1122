@@ -1,0 +1,74 @@
+# 数据源配置
+spring:
+    datasource:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        druid:
+            # 主库数据源
+            master:
+                url: jdbc:mysql://192.168.233.84:3306/jczh?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                username: Z7ZQnCCFCQr+14mVUYazFclkbgYuBp85y9XD9pbMt3NHwQ2OTc+7fDcLF/iwqKbZ3M0V7GVcHfIKX/BNF6ur73NnTaFsX/h3CEmr6rUFfF1Bka4cKfN1aQN1Yq5jDWuUZON08Hdrk6tQrwRCzhHuJliDpeFK0H8sTTp1kHHhnuQ=
+                password: e91FfMUO56FFR+gDFVBiMZ49+yylRIIPq1z6TaZxW/FRL0deD6ZbF8pCsnPEWdIWaJC72PokJ3LLGgXgCvmrQQpLtvs2E8cC/PU0eod/P6juiF/l9SaZc6WmZgB8/7WouuslVaCMUjOa5XpWVZ+gc1Ak1xY3JRFXwjgt2FcCFtI=
+            # 从库数据源
+            slave:
+                # 从数据源开关/默认关闭
+                enabled: true
+                url: jdbc:oracle:thin:@10.231.49.252:1521/orcl
+                username: IpOMfC1Vwyiv5ST//oIKvtIvLchAQMMgmCY/Kj2X7HRti6dAFqNE2x89WR/5cta5gOYPaSBfxfujw8cZA3I/urfaKroFqSt1PN7T78qz5lInMSzbjdQgsP3xNfDKUYRUFhoP/OoPkxg/sFrandT0hgdk2X5w57NLkCFpICKkXQg=
+                password: hhJM+1jNRCN8xNUiCfiiZMF+kNJKHODCTfb20SrP6404pCPKKld0L4k65A/pj2R+GEJ7M4CcUHotjs5h1chbmHfAoy++elfdFwG6A6/Nku+qZkC+MWqPF00A3HaRIX5HcpOwfV1ahFIJ81Wd7Kigu3M7+sQF0U/Z7pfXvhH2WBI=
+                driverClassName: oracle.jdbc.driver.OracleDriver
+            slave2:
+                # 从数据源开关/默认关闭
+                enabled: true
+                url: jdbc:oracle:thin:@10.231.49.8:1521/xfk
+                username: WrCebpy7BUbaiUzZILYwBsar9Nln9jKCERwZ/IlJv+NbF9M4hqT9AQ30vP6e9DgWoNy8TcWWD2IMH7eb9iFZOgzGWsjo1dIlzdYqdVqVQ9OPfRZH1CzTUjuyWmjpkn5JHjydZ3i/9McYEOtlxCaVCfsLTpxRQYtSIUp3Bw8xRUY=
+                password: ddUniuaL1mTuKulYNbEBIB8DC2+eCayvzmPQBR5wKsfQcZCQxZCqU/Rc74cgGMva951brQC6xNp7kpPgN/Pk8il19FvaXCAd5Q45jGxzoipfGDtSTaqjGUwEp+BUuPyMR6O4POi5uYAPC1rr4x4RpGm4exW9lTRubk3DsEbH8rs=
+                driverClassName: oracle.jdbc.driver.OracleDriver
+            slave3:
+                # 从数据源开关/默认关闭
+                enabled: true
+                url: jdbc:oracle:thin:@10.231.49.196:1521/orcl
+                username: D72G6/UEi0y/JzcSgfY3+1Wgvx94i0PJGnPbIrt2OMcJ/raRvlO+JSIxOWXicTDGBBeB0ljgrrlnyPEeumuHtg5HhZa6JtphQhmYozCbth4garwzT8jXEW2r/AZn45aS3AjmkyPRayC9xDCdB2QfYiAFRkXIDoiOjhzNQ4TpF1U=
+                password: LSe1rFu/c0dRq53C3h0+dP9f+j1VXSkdvNi3v5W7wVQcO7ZFA/84DSKZwztLOjPW3pycKN56G9CuoBVO9KfOI6NpFHhTD1c0T6epmpAkikD028QQB/LNwnfANNttfzkZ46Ef1f9P2yxTzgJYK+YdlmKWMQg0JNUWAmwnDKaV1u4=
+                driverClassName: oracle.jdbc.driver.OracleDriver
+            # 初始连接数
+            initialSize: 5
+            # 最小连接池数量
+            minIdle: 10
+            # 最大连接池数量
+            maxActive: 20
+            # 配置获取连接等待超时的时间
+            maxWait: 60000
+            # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+            timeBetweenEvictionRunsMillis: 60000
+            # 配置一个连接在池中最小生存的时间，单位是毫秒
+            minEvictableIdleTimeMillis: 300000
+            # 配置一个连接在池中最大生存的时间，单位是毫秒
+            maxEvictableIdleTimeMillis: 900000
+            # 配置检测连接是否有效
+            validationQuery: SELECT 1 FROM DUAL
+            testWhileIdle: true
+            testOnBorrow: false
+            testOnReturn: false
+            webStatFilter:
+                enabled: true
+            statViewServlet:
+                enabled: false
+                # 设置白名单，不填则允许所有访问
+                allow:
+                # 设置黑名单
+                deny:
+                url-pattern: /druid/*
+                # 控制台管理用户名和密码
+                login-username: cZldABVrVkX6x6kOFKX23L7K4+ZpOFZ3lLhpIsDAcNkYjmzEEm/WTPs4EIkZAGzqncJs5s/WOVZ2IDKrKUNjyi/OkQmTYydNeiFmsHeFCn86rtBQiybHowuc/XyCXrMqWMjEVUaSuHRbU7k4gzjiddwoeW/vbEXO2udExdK6kFA=
+                login-password: MiDhnko4nHEwFPpqjlxUAzouLth5fN2V6KfzUBXO+RhzcYKVJFX4vySz//WSEnUUGw/5QtEPDREdoXYu+28wAJHiFm5aDI0iVi2Kf14sieiOA4WOR1igXFlHv1kOzbiYFTVxC/odK7NExzjdiJ4L3aKCpTv07aBawwjTowtirok=
+            filter:
+                stat:
+                    enabled: true
+                    # 慢SQL记录
+                    log-slow-sql: true
+                    slow-sql-millis: 1000
+                    merge-sql: true
+                wall:
+                    config:
+                        multi-statement-allow: true

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.JczhCheckSameCarAppMapper">
+
+    <resultMap type="JczhCheckSameCarApp" id="JczhCheckSameCarAppResult">
+        <result property="id"    column="id"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="xm"    column="xm"    />
+        <result property="yhdh"    column="yhdh"    />
+        <result property="cxhpzl"    column="cxhpzl"    />
+        <result property="cxhphm"    column="cxhphm"    />
+        <result property="sl"    column="sl"    />
+        <result property="rksj"    column="rksj"    />
+    </resultMap>
+
+    <sql id="selectJczhCheckSameCarAppVo">
+        select id, glbm, xm, yhdh, cxhpzl, cxhphm, sl, rksj from jczh_check_same_car_app
+    </sql>
+
+    <select id="selectJczhCheckSameCarAppList" parameterType="JczhCheckSameCarApp" resultMap="JczhCheckSameCarAppResult">
+        <include refid="selectJczhCheckSameCarAppVo"/>
+        <where>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="xm != null  and xm != ''"> and xm = #{xm}</if>
+            <if test="yhdh != null  and yhdh != ''"> and yhdh = #{yhdh}</if>
+            <if test="cxhpzl != null  and cxhpzl != ''"> and cxhpzl = #{cxhpzl}</if>
+            <if test="cxhphm != null  and cxhphm != ''"> and cxhphm = #{cxhphm}</if>
+            <if test="sl != null "> and sl = #{sl}</if>
+            <if test="rksj != null "> and rksj = #{rksj}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(rksj,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(rksj,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+    <select id="selectJczhCheckSameCarAppLists" parameterType="JczhCheckSameCarApp" resultMap="JczhCheckSameCarAppResult">
+        select (select bmmc from frm_tms_department t where t.glbm=l.glbm) glbm,
+        (select xm from frm_tms_sysuser s where s.rybh=l.yhdh) xm,cxhpzl,cxhphm,sl,yhdh
+        from (select * from(
+        select glbm,yhdh,cxhpzl,cxhphm,count(1) sl from (
+        select * from app_pass_query_log
+        where 1 = 1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and rksj >= to_date(#{params.beginTime},'yyyy-mm-dd')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and to_date(#{params.endTime},'yyyy-mm-dd') >= rksj
+        </if>
+            )
+        where length(cxhphm)>5 group by glbm,yhdh,cxhpzl,cxhphm)) l
+        where sl>10 order by sl desc
+    </select>
+
+    <select id="selectJczhCheckSameCarAppById" parameterType="Long" resultMap="JczhCheckSameCarAppResult">
+        <include refid="selectJczhCheckSameCarAppVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertJczhCheckSameCarApp" parameterType="JczhCheckSameCarApp" useGeneratedKeys="true" keyProperty="id">
+        insert into jczh_check_same_car_app
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">glbm,</if>
+            <if test="xm != null">xm,</if>
+            <if test="yhdh != null">yhdh,</if>
+            <if test="cxhpzl != null">cxhpzl,</if>
+            <if test="cxhphm != null">cxhphm,</if>
+            <if test="sl != null">sl,</if>
+            <if test="rksj != null">rksj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="glbm != null">#{glbm},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="yhdh != null">#{yhdh},</if>
+            <if test="cxhpzl != null">#{cxhpzl},</if>
+            <if test="cxhphm != null">#{cxhphm},</if>
+            <if test="sl != null">#{sl},</if>
+            <if test="rksj != null">#{rksj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateJczhCheckSameCarApp" parameterType="JczhCheckSameCarApp">
+        update jczh_check_same_car_app
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="yhdh != null">yhdh = #{yhdh},</if>
+            <if test="cxhpzl != null">cxhpzl = #{cxhpzl},</if>
+            <if test="cxhphm != null">cxhphm = #{cxhphm},</if>
+            <if test="sl != null">sl = #{sl},</if>
+            <if test="rksj != null">rksj = #{rksj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteJczhCheckSameCarAppById" parameterType="Long">
+        delete from jczh_check_same_car_app where id = #{id}
+    </delete>
+
+    <delete id="deleteJczhCheckSameCarAppByIds" parameterType="String">
+        delete from jczh_check_same_car_app where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

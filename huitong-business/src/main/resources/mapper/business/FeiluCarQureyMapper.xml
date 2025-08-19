@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.FeiluCarQureyMapper">
+
+    <resultMap type="FeiluCarQurey" id="FeiluCarQureyResult">
+        <result property="id"    column="id"    />
+        <result property="account"    column="account"    />
+        <result property="num"    column="num"    />
+        <result property="numall"    column="numall"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectFeiluCarQureyVo">
+        select id, account, num, numall, create_time from feilu_car_qurey
+    </sql>
+
+    <select id="selectFeiluCarQureyList" parameterType="FeiluCarQurey" resultMap="FeiluCarQureyResult">
+        <include refid="selectFeiluCarQureyVo"/>
+        <where>
+            <if test="account != null  and account != ''"> and account = #{account}</if>
+            <if test="num != null "> and num = #{num}</if>
+            <if test="numall != null "> and numall = #{numall}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and date_format(create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                and date_format(create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectFeiluCarQureyLists" parameterType="FeiluCarQurey" resultMap="FeiluCarQureyResult">
+        WITH filtered_data AS (
+        SELECT account, carnumber
+        FROM traffic_cloud.log_operation_pass
+        WHERE carnumber IS NOT NULL
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and create_time >= to_date(#{params.beginTime}, 'yyyy-mm-dd')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            AND create_time &lt;= to_date(#{params.endTime}, 'yyyy-mm-dd')
+        </if>
+        )
+        -- 统计满足特定车牌条件的账户记录数
+        SELECT a.account, a.num, d.numall
+        FROM (
+        SELECT account, COUNT(*) num
+        FROM filtered_data
+        WHERE carnumber NOT LIKE '鲁%'
+        AND NOT regexp_like(substr(carnumber, 0, 1), '[A-Z]')
+        AND NOT regexp_like(substr(carnumber, 0, 1), '[f-z]')
+        AND NOT regexp_like(substr(carnumber, 0, 1), '[0-9]')
+        GROUP BY account
+        ) a
+        -- 连接统计所有账户记录数的结果
+        JOIN (
+        SELECT account, COUNT(*) numall
+        FROM filtered_data
+        GROUP BY account
+        ) d ON d.account = a.account
+    </select>
+
+    <select id="selectFeiluCarQureyById" parameterType="Long" resultMap="FeiluCarQureyResult">
+        <include refid="selectFeiluCarQureyVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertFeiluCarQurey" parameterType="FeiluCarQurey" useGeneratedKeys="true" keyProperty="id">
+        insert into feilu_car_qurey
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="account != null">account,</if>
+            <if test="num != null">num,</if>
+            <if test="numall != null">numall,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="account != null">#{account},</if>
+            <if test="num != null">#{num},</if>
+            <if test="numall != null">#{numall},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFeiluCarQurey" parameterType="FeiluCarQurey">
+        update feilu_car_qurey
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="account != null">account = #{account},</if>
+            <if test="num != null">num = #{num},</if>
+            <if test="numall != null">numall = #{numall},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFeiluCarQureyById" parameterType="Long">
+        delete from feilu_car_qurey where id = #{id}
+    </delete>
+
+    <delete id="deleteFeiluCarQureyByIds" parameterType="String">
+        delete from feilu_car_qurey where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

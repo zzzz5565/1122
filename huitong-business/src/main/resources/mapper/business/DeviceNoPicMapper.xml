@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.DeviceNoPicMapper">
+
+    <resultMap type="DeviceNoPic" id="DeviceNoPicResult">
+        <result property="id"    column="id"    />
+        <result property="sbbh"    column="sbbh"    />
+        <result property="sbmc"    column="sbmc"    />
+        <result property="glbm"    column="glbm"    />
+    </resultMap>
+
+    <sql id="selectDeviceNoPicVo">
+        select id, sbbh, sbmc, glbm from device_no_pic
+    </sql>
+
+    <select id="selectDeviceNoPicList" parameterType="DeviceNoPic" resultMap="DeviceNoPicResult">
+        <include refid="selectDeviceNoPicVo"/>
+        <where>
+            <if test="sbbh != null  and sbbh != ''"> and sbbh like concat('%', #{sbbh}, '%')</if>
+            <if test="sbmc != null  and sbmc != ''"> and sbmc like concat('%', #{sbmc}, '%')</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+        </where>
+    </select>
+    <select id="selectDeviceNoPicLists" parameterType="DeviceNoPic" resultMap="DeviceNoPicResult">
+        WITH temp_sbbh AS (
+        SELECT sbbh, COUNT(1) sl
+        FROM dev_vio_equipment_pic c
+        WHERE xh IN (1, 2, 3)
+        AND sbbh IN (
+        SELECT sbbh
+        FROM dev_vio_equipment
+        WHERE zt = 1 AND sblx NOT IN ('6', '5')
+        )
+        GROUP BY sbbh
+        HAVING COUNT(1) &lt; 3
+        UNION ALL
+        SELECT sbbh, 0 sl
+        FROM dev_vio_equipment c
+        WHERE zt = 1 AND sblx NOT IN ('6', '5')
+        AND sbbh NOT IN (
+        SELECT sbbh
+        FROM dev_vio_equipment_pic
+        WHERE xh IN (1, 2, 3)
+        GROUP BY sbbh
+        HAVING COUNT(1) >= 1
+        )
+        GROUP BY sbbh
+        ),
+        excluded_sbbh AS (
+        SELECT sbbh
+        FROM dev_vio_equipment_pic_temp
+        WHERE xh IN ('1', '2', '3')
+        GROUP BY sbbh
+        HAVING COUNT(1) >= 3
+        )
+        SELECT
+        t.sbbh,
+        d.sbmc,
+        d.glbm
+        FROM temp_sbbh t
+        JOIN dev_vio_equipment d ON t.sbbh = d.sbbh
+        WHERE t.sbbh NOT IN (SELECT sbbh FROM excluded_sbbh)
+        <where>
+            <if test="sbbh != null  and sbbh != ''"> and d.sbbh like '%' || #{sbbh} || '%'</if>
+            <if test="sbmc != null  and sbmc != ''"> and d.sbmc like '%' || #{sbmc} || '%'</if>
+            <if test="glbm != null  and glbm != ''"> and substr(d.glbm,1,6) = #{glbm}</if>
+        </where>
+    </select>
+
+    <select id="selectDeviceNoPicById" parameterType="Long" resultMap="DeviceNoPicResult">
+        <include refid="selectDeviceNoPicVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertDeviceNoPic" parameterType="DeviceNoPic" useGeneratedKeys="true" keyProperty="id">
+        insert into device_no_pic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sbbh != null">sbbh,</if>
+            <if test="sbmc != null">sbmc,</if>
+            <if test="glbm != null">glbm,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sbbh != null">#{sbbh},</if>
+            <if test="sbmc != null">#{sbmc},</if>
+            <if test="glbm != null">#{glbm},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDeviceNoPic" parameterType="DeviceNoPic">
+        update device_no_pic
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sbbh != null">sbbh = #{sbbh},</if>
+            <if test="sbmc != null">sbmc = #{sbmc},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDeviceNoPicById" parameterType="Long">
+        delete from device_no_pic where id = #{id}
+    </delete>
+
+    <delete id="deleteDeviceNoPicByIds" parameterType="String">
+        delete from device_no_pic where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

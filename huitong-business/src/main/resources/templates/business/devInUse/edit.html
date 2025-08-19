@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改在用设备执法数据统计')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-devInUse-edit" th:object="${devInUse}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">预警日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="yjrq" th:value="${#dates.format(devInUse.yjrq, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">管理部门：</label>
+                <div class="col-sm-8">
+                    <input name="glbm" th:field="*{glbm}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">设备编号：</label>
+                <div class="col-sm-8">
+                    <input name="sbbh" th:field="*{sbbh}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">设备类型：</label>
+                <div class="col-sm-8">
+                    <input name="sblx" th:field="*{sblx}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">试用状态：</label>
+                <div class="col-sm-8">
+                    <input name="syzt" th:field="*{syzt}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">设备名称：</label>
+                <div class="col-sm-8">
+                    <input name="sbmc" th:field="*{sbmc}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">抓拍量：</label>
+                <div class="col-sm-8">
+                    <input name="zpl" th:field="*{zpl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">试用量：</label>
+                <div class="col-sm-8">
+                    <input name="syl" th:field="*{syl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">待初审量：</label>
+                <div class="col-sm-8">
+                    <input name="dcsl" th:field="*{dcsl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">历史待初审量：</label>
+                <div class="col-sm-8">
+                    <input name="lsdcsl" th:field="*{lsdcsl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">待核对量：</label>
+                <div class="col-sm-8">
+                    <input name="dhdl" th:field="*{dhdl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">历史待核对量：</label>
+                <div class="col-sm-8">
+                    <input name="lsdhdl" th:field="*{lsdhdl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">已上传量：</label>
+                <div class="col-sm-8">
+                    <input name="yscl" th:field="*{yscl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">初审作废量：</label>
+                <div class="col-sm-8">
+                    <input name="cszfl" th:field="*{cszfl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">复审作废量：</label>
+                <div class="col-sm-8">
+                    <input name="fszfl" th:field="*{fszfl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">采集时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="cjsj" th:value="${#dates.format(devInUse.cjsj, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "business/devInUse";
+        $("#form-devInUse-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                let encrypJson = formToJsonEncryp('#form-devInUse-edit');
+                $.operate.saveJson(prefix + "/edit",encrypJson);
+            }
+        }
+
+        $("input[name='yjrq']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+        $("input[name='cjsj']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

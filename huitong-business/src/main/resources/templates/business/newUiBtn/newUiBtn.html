@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+  <th:block th:include="include :: header('用户列表')" />
+  <th:block th:include="include :: layout-latest-css" />
+  <th:block th:include="include :: ztree-css" />
+</head>
+<body>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .whitebg {
+    width: 100%;
+    background: #fff;
+    border-radius: 6px;
+    margin-top: 10px;
+    padding-top: 5px;
+    padding-bottom: 13px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, .2);
+    padding: 10px 20px;
+  }
+
+  .tytle {
+    width: 100%;
+    display: flex;
+    font-size: 14px;
+    color: #000;
+    font-weight: 600;
+    margin: 20px 0;
+  }
+
+  .tytle span {
+    width: 5px;
+    height: 15px;
+    border-radius: 5px;
+    background: #2568ec;
+    margin-right: 10px;
+  }
+  .btngoupsss{display: flex;flex-wrap: wrap;}
+  .btngoupsss a{
+    margin-bottom: 10px;
+  }
+</style>
+
+<body class="gray-bg">
+<div class="container-div" style="width: 100%;height: 100%;position: relative;">
+  <div class="whitebg">
+    <div class="tytle">
+      <span></span>
+      按钮的标题(一些通用按钮，复制class类名使用)
+    </div>
+
+    <div class="btngoupsss">
+      <a class="new_btn_add">新增</a>&emsp;|
+      <a class="new_btn_xiuGai">修改</a>&emsp;|
+      <a class="new_btn_daoRu">导入</a>&emsp;|
+      <a class="new_btn_daoChu">导出</a>&emsp;|
+      <a class="new_btn_zhanKai">展开/折叠</a>&emsp;|
+      <a class="new_btn_shuaXin">刷新</a>&emsp;|
+      <a class="new_btn_caiDan">列表</a>&emsp;|
+      <a class="new_btn_guanBi">关闭</a>&emsp;|
+      <a class="new_btn_wenBen">文本</a>&emsp;|
+      <a class="new_btn_coDe">代码</a>&emsp;|
+      <a class="new_btn_chaKan">查看</a>&emsp;|
+      <a class="new_btn_shiZhong">时钟</a>&emsp;|
+      <a class="new_btn_duiGou">对勾</a>&emsp;|
+      <a class="new_btn_duiHua">对话</a>&emsp;|
+      <a class="new_btn_dunPai">盾牌</a>&emsp;|
+      <a class="new_btn_zhiFeiJi">飞机</a>&emsp;|
+      <a class="new_btn_yinZhang">印章</a>&emsp;|
+      <a class="new_btn_kaiShi">开始</a>&emsp;|
+      <a class="new_btn_weiZhi">地图</a>&emsp;|
+      <a class="new_btn_hShanChu">灰删除</a>&emsp;|
+      <a class="new_btn_xiaZai">下载</a>&emsp;|
+      <a class="new_btn_gbWenZhang">文章</a>&emsp;|
+      <a class="new_btn_suoKong">锁孔</a>&emsp;|
+      <a class="new_btn_suo">锁住</a>&emsp;|
+      <a class="new_btn_wenJianJia">文件夹</a>&emsp;|
+      <a class="new_btn_youJianTou">右箭头</a>&emsp;|
+      <a class="new_btn_hongZanTing">红暂停</a>&emsp;|
+    </div>
+
+    <div class="tytle">
+      <span></span>
+      按钮的标题(一些通用按钮，复制class类名使用)
+    </div>
+
+    <div>
+      <a class="btn btn-weixian btn-rounded btn-sm" >审批驳回</a>&emsp;|
+      <a class="btn btn-primary btn-sm" >审批通过</a>&emsp;|
+      <a class="btn btn-warning btn-sm" >刷新</a>&emsp;|
+      <a class="btn btn-tongGuo btn-sm" >通过</a>&emsp;|
+      <a class="btn btn-boHui btn-sm" >驳回</a>&emsp;|
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</body>
+
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: layout-latest-js" />
+<th:block th:include="include :: ztree-js" />
+</html>

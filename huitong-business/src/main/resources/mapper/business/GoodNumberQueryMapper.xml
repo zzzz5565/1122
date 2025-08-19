@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.GoodNumberQueryMapper">
+
+    <resultMap type="GoodNumberQuery" id="GoodNumberQueryResult">
+        <result property="id"    column="id"    />
+        <result property="yhdh"    column="yhdh"    />
+        <result property="xm"    column="xm"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="cs"    column="cs"    />
+        <result property="xrsj"    column="xrsj"    />
+    </resultMap>
+
+    <sql id="selectGoodNumberQueryVo">
+        select id, yhdh, xm, glbm, cs, xrsj from good_number_query
+    </sql>
+
+    <select id="selectGoodNumberQueryList" parameterType="GoodNumberQuery" resultMap="GoodNumberQueryResult">
+        <include refid="selectGoodNumberQueryVo"/>
+        <where>
+            <if test="yhdh != null  and yhdh != ''"> and yhdh = #{yhdh}</if>
+            <if test="xm != null  and xm != ''"> and xm = #{xm}</if>
+            <if test="glbm != null  and glbm != ''"> and glbm = #{glbm}</if>
+            <if test="xrsj != null "> and xrsj = #{xrsj}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                and xrsj >= STR_TO_DATE(#{params.beginTime}, '%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+                and xrsj &lt; DATE_ADD(STR_TO_DATE(#{params.endTime}, '%Y-%m-%d %H:%i:%s'), INTERVAL 1 DAY)
+            </if>
+        </where>
+    </select>
+
+    <select id="selectGoodNumberQueryLists" parameterType="GoodNumberQuery" resultMap="GoodNumberQueryResult">
+        select yhdh,xm,
+        (select bmmc from trff_app.FRM_TMS_DEPARTMENT d where d.GLBM = t.GLBM) glbm,
+        trunc(xrsj) xrsj, count(*)cs from TRFF_APP.FRM_TMS_IMPT_DATA_ACCESS_LOG t
+        where 1 = 1
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            and xrsj >= to_date(#{params.beginTime}, 'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 开始时间检索 -->
+            and xrsj &lt; to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')+1
+        </if>
+        and regexp_like(hphm, '111|222|333|444|555|888|666|777|999|000')
+        group by yhdh,xm,glbm,trunc(xrsj) having count(*) >15
+    </select>
+
+    <select id="selectGoodNumberQueryById" parameterType="Long" resultMap="GoodNumberQueryResult">
+        <include refid="selectGoodNumberQueryVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertGoodNumberQuery" parameterType="GoodNumberQuery" useGeneratedKeys="true" keyProperty="id">
+        insert into good_number_query
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">yhdh,</if>
+            <if test="xm != null">xm,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="cs != null">cs,</if>
+            <if test="xrsj != null">xrsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yhdh != null">#{yhdh},</if>
+            <if test="xm != null">#{xm},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="cs != null">#{cs},</if>
+            <if test="xrsj != null">#{xrsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateGoodNumberQuery" parameterType="GoodNumberQuery">
+        update good_number_query
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yhdh != null">yhdh = #{yhdh},</if>
+            <if test="xm != null">xm = #{xm},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="cs != null">cs = #{cs},</if>
+            <if test="xrsj != null">xrsj = #{xrsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteGoodNumberQueryById" parameterType="Long">
+        delete from good_number_query where id = #{id}
+    </delete>
+
+    <delete id="deleteGoodNumberQueryByIds" parameterType="String">
+        delete from good_number_query where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
