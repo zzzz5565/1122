@@ -71,6 +71,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             WHERE t.glbm LIKE '3706%'
               AND t.zt ='1'
               AND t.syzt IN ('1', '2')
+              AND t.sbfl = '1'
               AND t.shyj LIKE '%通过%'
               AND (t.spyj LIKE '%同意%' OR (t.spr IS NOT NULL AND t.spyj IS NULL))
         ),

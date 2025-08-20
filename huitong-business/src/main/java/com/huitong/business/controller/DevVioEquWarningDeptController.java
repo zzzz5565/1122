@@ -379,20 +379,4 @@ public class DevVioEquWarningDeptController extends BaseController
     {
         return toAjax(devVioEquWarningDeptService.deleteDevVioEquWarningDeptByIds(ids));
     }
-
-    public static void main(String[] args) throws ParseException {
-        // 获取前一天日期
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.DATE, -1);
-        Date preDate = calendar.getTime();
-        calendar.add(Calendar.DATE, -1);
-        Date endDate = calendar.getTime();
-
-        calendar.add(Calendar.DATE, -9);
-        Date startDate = calendar.getTime();
-        System.out.println(preDate);
-        System.out.println(startDate);
-        System.out.println(endDate);
-    }
 }

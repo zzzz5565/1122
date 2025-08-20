@@ -78,18 +78,22 @@ public class DevVioEquWarningDept extends BaseEntity
     @Excel(name = "初审异常")
     private String csyc;
 
+    @Excel(name = "违法上传失败")
+    private Integer zfscsb;
+
     /** 作废率 */
-    private String zfl;
-    private String zpl;
-    private String cszfl;
-    private String sblx;
-    private String sbmc;
-    private String zt;
-    private String zt2;
-    private Date preDate;
-    private Date endDate;
-    private String pjz;
-    private String result;
+    private String zfl;     // 作废率
+    private String zpl;     // 抓拍量
+    private String cszfl;   // 初审作废量
+    private String sblx;    // 设备类型
+    private String sbmc;    // 设备名称
+    private String zt;      // 状态
+    private String zt2;     // 状态2
+    private Date preDate;   // 平均值的开始日期
+    private Date endDate;   // 平均值的结束日期
+    private String pjz;     // 平均值
+    private String result;  // 激增巨减结果
+    private String dsh;     // 待审核
 
     /** 比值 */
     private String bz;
@@ -327,6 +331,21 @@ public class DevVioEquWarningDept extends BaseEntity
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
+
+    public String getDsh() {
+        return dsh;
+    }
+
+    public void setDsh(String dsh) {
+        this.dsh = dsh;
+    }
+
+    public Integer getZfscsb() {return zfscsb;}
+
+    public void setZfscsb(Integer zfscsb) {
+        this.zfscsb = zfscsb;
+    }
+
 
     @Override
     public String toString() {

@@ -71,11 +71,11 @@
 <!--                            </li>-->
 <!--                            <li>-->
 <!--                                <label>备注：</label>-->
-<!--                                <input type="text" name="bz"/>-->
+<!--                                <input type="text" name="zfl"/>-->
 <!--                            </li>-->
 <!--                            <li>-->
 <!--                                <label>备注2：</label>-->
-<!--                                <input type="text" name="bz2"/>-->
+<!--                                <input type="text" name="bz"/>-->
 <!--                            </li>-->
                             <li>
                                 <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -153,34 +153,52 @@
                 },
                 {
                     field: 'wsjsc',
-                    title: '无数据上传'
+                    title: '无数据上传',
+                    align: 'center',
+                    formatter:colorFormatter,
                 },
                 {
                     field: 'ztyc',
-                    title: '状态异常上传'
+                    title: '状态异常变化',
+                    align: 'center',
+                    formatter:colorFormatter,
                 },
                 {
                     field: 'zplyc',
-                    title: '抓拍量异常'
+                    title: '抓拍量异常',
+                    align: 'center',
+                    formatter:colorFormatter,
                 },
                 {
                     field: 'sjjz',
-                    title: '数据激增'
+                    title: '数据激增',
+                    align: 'center',
+                    formatter:colorFormatter,
                 },
                 {
                     field: 'sjjj',
-                    title: '数据巨减'
+                    title: '数据巨减',
+                    align: 'center',
+                    formatter:colorFormatter,
                 },
                 {
                     field: 'csyc',
-                    title: '初审异常'
+                    title: '初审异常',
+                    align: 'center',
+                    formatter:colorFormatter,
                 },
+                    {
+                        field: 'zfscsb',
+                        title: '违法还在上传',
+                        align: 'center',
+                        formatter:colorFormatter,
+                    },
                 // {
-                //     field: 'bz',
+                //     field: 'zfl',
                 //     title: '备注'
                 // },
                 // {
-                //     field: 'bz2',
+                //     field: 'bz',
                 //     title: '备注2'
                 // },
                 // {
@@ -235,6 +253,55 @@
         // 获取 input 元素并设置其值
         const endTimeInput = document.getElementById('endTime');
         endTimeInput.value = formatDate(yesterday);
+
+        function colorFormatter(value, row, index, field) {
+
+            var yjlx = '';
+            switch (field) {
+                case "wsjsc":
+                    yjlx = '2';
+                    break;
+                case "ztyc":
+                    yjlx = '7';
+                    break;
+                case "zplyc":
+                    yjlx = '1';
+                    break;
+                case "sjjz":
+                    yjlx = '15';
+                    break;
+                case "sjjj":
+                    yjlx = '16';
+                    break;
+                case "csyc":
+                    yjlx = '5';
+                    break;
+                default:
+                    yjlx = '0'
+            }
+
+            if (value && row.glbm){
+                return `<a style="color: #2a5de7"  onclick="showDetail('${yjlx}', '${row.glbm}','${row.yjrq}')">${value}</a>`;
+            }
+            return `${value}`;
+        }
+
+        function showDetail(yjlx, glbm, yjrq) {
+            //
+            const url = ctx +'business/devVioEquWarningDept/getDetail/' + yjlx +'/' + glbm +'/' + yjrq ;
+            var options = {
+                title: "详情",
+                url: url,
+                width: 800,
+                height: ($(window).height() - 50),
+                skin: 'layui-layer-gray',
+                btn: ['关闭'],
+                yes: function (index, layero) {
+                    $.modal.close(index);
+                }
+            };
+            $.modal.openOptions(options);
+        }
 
     </script>
 </body>

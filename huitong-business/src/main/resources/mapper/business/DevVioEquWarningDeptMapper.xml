@@ -32,6 +32,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="endDate"    column="endDate"    />
         <result property="pjz"    column="pjz"    />
         <result property="result"    column="result"    />
+        <result property="zfscsb"   column="zfscsb"   />
+        <result property="dsh"    column="dsh"    />
     </resultMap>
 
     <sql id="selectDevVioEquWarningDeptVo">
@@ -62,7 +64,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 
     <select id="selectWarningDeptList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
-        select a.yjrq, a.glbm,sum(wsjsc) wsjsc, sum(ztyc) ztyc, sum(zplyc) zplyc, sum(sjjz) sjjz, sum(sjjj) sjjj, sum(csyc) csyc from (
+        select a.yjrq, a.glbm,sum(wsjsc) wsjsc, sum(ztyc) ztyc, sum(zplyc) zplyc, sum(sjjz) sjjz, sum(sjjj) sjjj, sum(csyc) csyc,IFNULL(uf.zfscsb_count, 0) AS zfscsb from (
         select yjrq, glbm,count(*) wsjsc,0 ztyc,0 zplyc, 0 sjjz, 0 sjjj, 0 csyc from dev_vio_equ_warning t
         where t.yjlx = '2'
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
@@ -289,6 +291,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         group by b.bmbm
 
         ) a
+    left join
+        (
+        SELECT
+        DATE_FORMAT(t.wfsj, '%Y-%m-%d') AS yjrq_failure,
+        f.bmmc AS glbm_failure,
+        COUNT(1) AS zfscsb_count
+        FROM
+        vio_suveil t
+        LEFT JOIN
+        dev_vio_equipment d ON d.sbbh = t.sbbh
+        LEFT JOIN
+        fre_dep f ON f.bmbm = SUBSTRING(d.sbbh, 1, 6)
+        WHERE
+        d.zt IN ('2', '3')
+        <if test="params.beginTime != null and params.beginTime != ''">
+            AND t.wfsj &gt;= STR_TO_DATE(#{params.beginTime},'%Y-%m-%d')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''">
+            AND t.wfsj &lt;= STR_TO_DATE(#{params.endTime},'%Y-%m-%d')
+        </if>
+        GROUP BY
+        DATE_FORMAT(t.wfsj, '%Y-%m-%d'), f.bmmc
+        ) uf ON a.yjrq = uf.yjrq_failure AND a.glbm = uf.glbm_failure
     <where>
         <if test="glbm != null  and glbm != ''"> and a.glbm = #{glbm} and glbm not like '%一大队%' and glbm not like '%二大队%' and glbm not like '%三大队%'</if>
     </where>
@@ -320,14 +345,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <!--    初审异常-->
     <select id="selectCsycList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
-        select * from (select t.yjrq,
+        select *, (a.dcsl+a.lsdcsl) dsh from (select t.yjrq,
                               t.glbm,
                               t.sbbh,
                               t.sbmc,
                               t.sblx,
                               t.zpl,
                               t.cszfl,
-                              round((ifnull(t.cszfl, 0) / ifnull(t.zpl, 0)) * 100, 2) zfl
+                              t.dcsl,
+                              t.lsdcsl,
+                              round((ifnull(t.cszfl, 0) / (ifnull(t.zpl, 0) - ifnull(t.syl, 0))) * 100, 2) zfl
                        from dev_in_use t
                        where t.yjrq = #{yjrq}
                          and t.glbm like concat('%', #{glbm}, '%')

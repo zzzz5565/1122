@@ -66,16 +66,19 @@
                 {
                     field: 'zpl',
                     title: '抓拍量',
+                    align: 'center',
                 },
                 {
                     field: 'cszfl',
                     title: '初审作废量',
+                    align: 'center',
                 },
                 {
-                    field: 'zfl',
-                    title: '作废率',
+                    field: 'dsh',
+                    title: '待审核',
+                    align: 'center',
                     formatter: function(value) {
-                        return value + '%';
+                        return parseInt(value);
                     }
                 }]
             };
