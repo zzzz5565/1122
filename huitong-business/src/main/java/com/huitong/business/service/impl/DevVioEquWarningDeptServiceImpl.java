@@ -85,7 +85,11 @@ public class DevVioEquWarningDeptServiceImpl implements IDevVioEquWarningDeptSer
     {
         return devVioEquWarningDeptMapper.selectSjjjList(devVioEquWarningDept);
     }
-
+    @Override
+    public List<DevVioEquWarningDept> selectZfscsbList(DevVioEquWarningDept devVioEquWarningDept)
+    {
+        return devVioEquWarningDeptMapper.selectZfscsbList(devVioEquWarningDept);
+    }
     /**
      * 新增设备预警
      * 

@@ -164,6 +164,12 @@
                     formatter:colorFormatter,
                 },
                 {
+                    field: 'ztycsc',
+                    title: '状态异常上传',
+                    align: 'center',
+                    formatter:colorFormatter,
+                },
+                {
                     field: 'zplyc',
                     title: '抓拍量异常',
                     align: 'center',
@@ -186,13 +192,7 @@
                     title: '初审异常',
                     align: 'center',
                     formatter:colorFormatter,
-                },
-                    {
-                        field: 'zfscsb',
-                        title: '违法还在上传',
-                        align: 'center',
-                        formatter:colorFormatter,
-                    },
+                }
                 // {
                 //     field: 'zfl',
                 //     title: '备注'
@@ -275,6 +275,9 @@
                     break;
                 case "csyc":
                     yjlx = '5';
+                    break;
+                case "ztycsc":
+                    yjlx = '17';
                     break;
                 default:
                     yjlx = '0'

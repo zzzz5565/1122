@@ -58,6 +58,13 @@ public class DevInUseServiceImpl implements IDevInUseService
         return devInUseMapper.selectDevInUseBySbbh(sbbh, strDayStart);
     }
 
+    // 判断是否存在
+    @Override
+    public DevInUse selectDevInUseBySbbh5(String sbbh, String strDayStart)
+    {
+        return devInUseMapper.selectDevInUseBySbbh5(sbbh, strDayStart);
+    }
+
     /**
      * 新增在用设备执法数据统计
      * 
@@ -68,6 +75,12 @@ public class DevInUseServiceImpl implements IDevInUseService
     public int insertDevInUse(DevInUse devInUse)
     {
         return devInUseMapper.insertDevInUse(devInUse);
+    }
+
+    @Override
+    public int insertDevInUses(DevInUse devInUse)
+    {
+        return devInUseMapper.insertDevInUses(devInUse);
     }
 
     /**
@@ -84,7 +97,7 @@ public class DevInUseServiceImpl implements IDevInUseService
 
     // 更新
     @Override
-    public int updateDevInUseBySbbh(DevInUse devInUse, String sbbh, String strDayStart)
+    public DevInUse updateDevInUseBySbbh(DevInUse devInUse, String sbbh, String strDayStart)
     {
         return devInUseMapper.updateDevInUseBySbbh(devInUse, sbbh, strDayStart);
     }
@@ -111,5 +124,11 @@ public class DevInUseServiceImpl implements IDevInUseService
     public int deleteDevInUseById(Long id)
     {
         return devInUseMapper.deleteDevInUseById(id);
+    }
+
+    @Override
+    public int deleteDevInUseByYjrq(String strDayStart)
+    {
+        return devInUseMapper.deleteDevInUseByYjrq(strDayStart);
     }
 }

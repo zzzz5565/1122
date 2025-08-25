@@ -166,6 +166,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where t.sbbh = #{sbbh} and t.yjrq = #{strDayStart}
     </select>
 
+    <!--    判断是否存在-->
+    <select id="selectDevInUseBySbbh5" parameterType="DevInUse" resultMap="DevInUseResult">
+        select * from dev_in_uses t
+        where t.sbbh = #{sbbh} and t.yjrq = #{strDayStart}
+    </select>
+
 <!--    更新-->
     <select id="updateDevInUseBySbbh" parameterType="DevInUse" resultMap="DevInUseResult">
         update dev_in_use
@@ -238,6 +244,48 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
+    <insert id="insertDevInUses" parameterType="DevInUse" useGeneratedKeys="true" keyProperty="id">
+        insert into dev_in_uses
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">yjrq,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="bmbm != null">bmbm,</if>
+            <if test="sbbh != null">sbbh,</if>
+            <if test="sblx != null">sblx,</if>
+            <if test="syzt != null">syzt,</if>
+            <if test="sbmc != null">sbmc,</if>
+            <if test="zpl != null">zpl,</if>
+            <if test="syl != null">syl,</if>
+            <if test="dcsl != null">dcsl,</if>
+            <if test="lsdcsl != null">lsdcsl,</if>
+            <if test="dhdl != null">dhdl,</if>
+            <if test="lsdhdl != null">lsdhdl,</if>
+            <if test="yscl != null">yscl,</if>
+            <if test="cszfl != null">cszfl,</if>
+            <if test="fszfl != null">fszfl,</if>
+            <if test="cjsj != null">cjsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">#{yjrq},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="bmbm != null">#{bmbm},</if>
+            <if test="sbbh != null">#{sbbh},</if>
+            <if test="sblx != null">#{sblx},</if>
+            <if test="syzt != null">#{syzt},</if>
+            <if test="sbmc != null">#{sbmc},</if>
+            <if test="zpl != null">#{zpl},</if>
+            <if test="syl != null">#{syl},</if>
+            <if test="dcsl != null">#{dcsl},</if>
+            <if test="lsdcsl != null">#{lsdcsl},</if>
+            <if test="dhdl != null">#{dhdl},</if>
+            <if test="lsdhdl != null">#{lsdhdl},</if>
+            <if test="yscl != null">#{yscl},</if>
+            <if test="cszfl != null">#{cszfl},</if>
+            <if test="fszfl != null">#{fszfl},</if>
+            <if test="cjsj != null">#{cjsj},</if>
+         </trim>
+    </insert>
+
     <update id="updateDevInUse" parameterType="DevInUse">
         update dev_in_use
         <trim prefix="SET" suffixOverrides=",">
@@ -264,6 +312,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <delete id="deleteDevInUseById" parameterType="Long">
         delete from dev_in_use where id = #{id}
+    </delete>
+
+    <delete id="deleteDevInUseByYjrq" parameterType="Long">
+        delete from dev_in_use where yjrq = #{strDayStart}
     </delete>
 
     <delete id="deleteDevInUseByIds" parameterType="String">

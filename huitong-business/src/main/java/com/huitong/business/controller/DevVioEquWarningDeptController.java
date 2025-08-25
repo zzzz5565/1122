@@ -34,8 +34,7 @@ import com.huitong.common.core.page.TableDataInfo;
  */
 @Controller
 @RequestMapping("/business/devVioEquWarningDept")
-public class DevVioEquWarningDeptController extends BaseController
-{
+public class DevVioEquWarningDeptController extends BaseController {
     private String prefix = "business/devVioEquWarningDept";
 
     @Autowired
@@ -43,8 +42,7 @@ public class DevVioEquWarningDeptController extends BaseController
 
     @RequiresPermissions("business:devVioEquWarningDept:view")
     @GetMapping()
-    public String devVioEquWarningDept()
-    {
+    public String devVioEquWarningDept() {
         return prefix + "/devVioEquWarningDept";
     }
 
@@ -57,7 +55,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @Decrypt
     @Encrypt
     public TableDataInfo list(@RequestBody DevVioEquWarningDept devVioEquWarningDept) throws ParseException {
-        startPage(devVioEquWarningDept.getPageNum(),devVioEquWarningDept.getPageSize());
+        startPage(devVioEquWarningDept.getPageNum(), devVioEquWarningDept.getPageSize());
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         // 获取前一天日期
@@ -83,8 +81,7 @@ public class DevVioEquWarningDeptController extends BaseController
     }
 
     @GetMapping("/getDetail/{yjlx}/{glbm}/{yjrq}")
-    public String getDetail(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap)
-    {
+    public String getDetail(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) {
         mmap.put("yjlx", yjlx);
         mmap.put("glbm", glbm);
         mmap.put("yjrq", yjrq);
@@ -100,6 +97,8 @@ public class DevVioEquWarningDeptController extends BaseController
             return prefix + "/sjjzDetail";
         } else if ("16".equals(yjlx)) {
             return prefix + "/sjjjDetail";
+        } else if ("17".equals(yjlx)) {
+            return prefix + "/zfscsbDetail";
         } else {
             return prefix + "/detail";
         }
@@ -113,7 +112,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo csycDetailList(@PathVariable("yjlx") String yjlx,@PathVariable("glbm") String glbm,@PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo csycDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -132,7 +131,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo wsjscDetailList(@PathVariable("yjlx") String yjlx,@PathVariable("glbm") String glbm,@PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo wsjscDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -153,7 +152,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo ztycDetailList(@PathVariable("yjlx") String yjlx,@PathVariable("glbm") String glbm,@PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo ztycDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -181,7 +180,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo zplycDetailList(@PathVariable("yjlx") String yjlx,@PathVariable("glbm") String glbm,@PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo zplycDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
         devVioEquWarningDept.setYjlx(Integer.valueOf(yjlx));
@@ -202,7 +201,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo sjjzDetailList(@PathVariable("yjlx") String yjlx,@PathVariable("glbm") String glbm,@PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo sjjzDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
 
@@ -240,7 +239,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo sjjjDetailList(@PathVariable("yjlx") String yjlx,@PathVariable("glbm") String glbm,@PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo sjjjDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
 
@@ -278,8 +277,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @PostMapping("/export")
     @ResponseBody
     @Decrypt
-    public AjaxResult export(@RequestBody DevVioEquWarningDept devVioEquWarningDept)
-    {
+    public AjaxResult export(@RequestBody DevVioEquWarningDept devVioEquWarningDept) {
         List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectDevVioEquWarningDeptList(devVioEquWarningDept);
         ExcelUtil<DevVioEquWarningDept> util = new ExcelUtil<DevVioEquWarningDept>(DevVioEquWarningDept.class);
         return util.exportExcel(list, "设备预警数据");
@@ -293,25 +291,24 @@ public class DevVioEquWarningDeptController extends BaseController
     @PostMapping("/exportZip")
     @ResponseBody
     @Decrypt
-    public AjaxResult exportZip(@RequestBody DevVioEquWarningDept devVioEquWarningDept)
-    {
+    public AjaxResult exportZip(@RequestBody DevVioEquWarningDept devVioEquWarningDept) {
         List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectDevVioEquWarningDeptList(devVioEquWarningDept);
         ExcelUtil<DevVioEquWarningDept> util = new ExcelUtil<DevVioEquWarningDept>(DevVioEquWarningDept.class);
-        AjaxResult ajaxResult =  util.exportExcel(list, "数据文件");
-        String fileName= ajaxResult.get("msg").toString();//获取文件下载名称
+        AjaxResult ajaxResult = util.exportExcel(list, "数据文件");
+        String fileName = ajaxResult.get("msg").toString();//获取文件下载名称
         String filePath = HuiTongConfig.getDownloadPath() + fileName;
-        String zipFileName = System.currentTimeMillis()+".zip";
-        String zipFilePath = HuiTongConfig.getDownloadPath()+zipFileName;
-        if(StringUtils.isNotEmpty(filePath)){
-            try{
-                FileZipUtil.zipFilePwd(filePath,zipFilePath,null);
+        String zipFileName = System.currentTimeMillis() + ".zip";
+        String zipFilePath = HuiTongConfig.getDownloadPath() + zipFileName;
+        if (StringUtils.isNotEmpty(filePath)) {
+            try {
+                FileZipUtil.zipFilePwd(filePath, zipFilePath, null);
                 FileUtils.deleteFile(filePath);//删除文件
-                ajaxResult.put("msg","");
-                ajaxResult.put("fileName",zipFileName);
-                ajaxResult.put("realFileName","数据文件"+DateUtils.dateTimeNow()+".zip");
-            }catch (Exception e){
-                ajaxResult.put("code","-1");
-                ajaxResult.put("msg","导出失败!!!");
+                ajaxResult.put("msg", "");
+                ajaxResult.put("fileName", zipFileName);
+                ajaxResult.put("realFileName", "数据文件" + DateUtils.dateTimeNow() + ".zip");
+            } catch (Exception e) {
+                ajaxResult.put("code", "-1");
+                ajaxResult.put("msg", "导出失败!!!");
                 e.printStackTrace();
             }
         }
@@ -322,8 +319,7 @@ public class DevVioEquWarningDeptController extends BaseController
      * 新增设备预警
      */
     @GetMapping("/add")
-    public String add()
-    {
+    public String add() {
         return prefix + "/add";
     }
 
@@ -335,8 +331,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @PostMapping("/add")
     @ResponseBody
     @Decrypt
-    public AjaxResult addSave(@RequestBody DevVioEquWarningDept devVioEquWarningDept)
-    {
+    public AjaxResult addSave(@RequestBody DevVioEquWarningDept devVioEquWarningDept) {
         devVioEquWarningDept.setCreateBy(getLoginName());
         return toAjax(devVioEquWarningDeptService.insertDevVioEquWarningDept(devVioEquWarningDept));
     }
@@ -346,8 +341,7 @@ public class DevVioEquWarningDeptController extends BaseController
      */
     @RequiresPermissions("business:devVioEquWarningDept:edit")
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable("id") Long id, ModelMap mmap)
-    {
+    public String edit(@PathVariable("id") Long id, ModelMap mmap) {
         DevVioEquWarningDept devVioEquWarningDept = devVioEquWarningDeptService.selectDevVioEquWarningDeptById(id);
         mmap.put("devVioEquWarningDept", devVioEquWarningDept);
         return prefix + "/edit";
@@ -361,8 +355,7 @@ public class DevVioEquWarningDeptController extends BaseController
     @PostMapping("/edit")
     @ResponseBody
     @Decrypt
-    public AjaxResult editSave(@RequestBody DevVioEquWarningDept devVioEquWarningDept)
-    {
+    public AjaxResult editSave(@RequestBody DevVioEquWarningDept devVioEquWarningDept) {
         devVioEquWarningDept.setUpdateBy(getLoginName());
         return toAjax(devVioEquWarningDeptService.updateDevVioEquWarningDept(devVioEquWarningDept));
     }
@@ -372,11 +365,31 @@ public class DevVioEquWarningDeptController extends BaseController
      */
     @RequiresPermissions("business:devVioEquWarningDept:remove")
     @Log(title = "设备预警", businessType = BusinessType.DELETE)
-    @PostMapping( "/remove")
+    @PostMapping("/remove")
     @ResponseBody
     @Decrypt
-    public AjaxResult remove(@RequestBody String ids)
-    {
+    public AjaxResult remove(@RequestBody String ids) {
         return toAjax(devVioEquWarningDeptService.deleteDevVioEquWarningDeptByIds(ids));
+    }
+    /**
+     * 违法还在上传
+     */
+    @RequiresPermissions("business:devVioEquWarningDept:list")
+    @PostMapping("/zfscsbDetailList/{yjlx}/{glbm}/{yjrq}")
+    @ResponseBody
+    @Decrypt
+    @Encrypt
+    public TableDataInfo zfscsbDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq) throws ParseException {
+        DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
+        devVioEquWarningDept.setGlbm(glbm);
+
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date yjrqDate = sdf.parse(yjrq);
+        devVioEquWarningDept.setYjrq(yjrqDate);
+
+        startPage();
+        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectZfscsbList(devVioEquWarningDept);
+        return getDataTable(list);
     }
 }

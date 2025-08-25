@@ -34,6 +34,8 @@ public interface DevInUseMapper
     // 判断是否存在
     public DevInUse selectDevInUseBySbbh(@Param("sbbh") String sbbh,@Param("strDayStart") String strDayStart);
 
+    public DevInUse selectDevInUseBySbbh5(@Param("sbbh") String sbbh,@Param("strDayStart") String strDayStart);
+
     /**
      * 新增在用设备执法数据统计
      * 
@@ -41,6 +43,8 @@ public interface DevInUseMapper
      * @return 结果
      */
     public int insertDevInUse(DevInUse devInUse);
+
+    public int insertDevInUses(DevInUse devInUse);
 
     /**
      * 修改在用设备执法数据统计
@@ -50,7 +54,7 @@ public interface DevInUseMapper
      */
     public int updateDevInUse(DevInUse devInUse);
 
-    public int updateDevInUseBySbbh(DevInUse devInUse, @Param("sbbh") String sbbh,@Param("strDayStart") String strDayStart);
+    public DevInUse updateDevInUseBySbbh(DevInUse devInUse, @Param("sbbh") String sbbh,@Param("strDayStart") String strDayStart);
 
     /**
      * 删除在用设备执法数据统计
@@ -59,6 +63,8 @@ public interface DevInUseMapper
      * @return 结果
      */
     public int deleteDevInUseById(Long id);
+
+    public int deleteDevInUseByYjrq(String strDayStart);
 
     /**
      * 批量删除在用设备执法数据统计

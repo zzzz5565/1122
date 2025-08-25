@@ -90,6 +90,8 @@ public class DevInUse extends BaseEntity
     @Excel(name = "采集时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date cjsj;
 
+    private Date preDate;
+
     public void setId(Long id) 
     {
         this.id = id;
@@ -250,6 +252,14 @@ public class DevInUse extends BaseEntity
 
     public void setBmbm(String bmbm) {
         this.bmbm = bmbm;
+    }
+
+    public Date getPreDate() {
+        return preDate;
+    }
+
+    public void setPreDate(Date preDate) {
+        this.preDate = preDate;
     }
 
     @Override

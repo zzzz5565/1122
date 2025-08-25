@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('违法数据上传记录列表')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li class="select-time">
+                                <label>预警日期：</label>
+                                <input type="text" class="time-input" placeholder="开始时间" name="params[beginYjrq]"/>
+                                <span>-</span>
+                                <input type="text" class="time-input" placeholder="结束时间" name="params[endYjrq]"/>
+                            </li>
+                            <li>
+                                <label>管理部门：</label>
+                                <input type="text" name="glbm"/>
+                            </li>
+                            <li>
+                                <label>设备编号 (需要和 dev_vio_equiment 表关联)：</label>
+                                <input type="text" name="sbbh"/>
+                            </li>
+                            <li>
+                                <label>设备名称：</label>
+                                <input type="text" name="sbmc"/>
+                            </li>
+                            <li>
+                                <label>违法时间：</label>
+                                <input type="text" class="time-input" placeholder="请选择违法时间" name="wfsj"/>
+                            </li>
+                            <li>
+                                <label>状态：</label>
+                                <input type="text" name="zt"/>
+                            </li>
+                            <li>
+                                <label>试用状态：</label>
+                                <input type="text" name="syzt"/>
+                            </li>
+                            <li>
+                                <label>采集时间：</label>
+                                <input type="text" class="time-input" placeholder="请选择采集时间" name="cjsj"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="business:vioSurveil:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="business:vioSurveil:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="business:vioSurveil:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <!--
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="business:vioSurveil:export">
+                    <i class="fa fa-download"></i> 导出Excel
+                </a>
+                -->
+                <a class="btn btn-warning" onclick="$.table.exportZip()" shiro:hasPermission="business:vioSurveil:export">
+                    <i class="fa fa-download"></i> 导出Zip
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('business:vioSurveil:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('business:vioSurveil:remove')}]];
+        var prefix = ctx + "business/vioSurveil";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                exportZipUrl: prefix + "/exportZip",
+                modalName: "违法数据上传记录",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: '主键ID',
+                    visible: false
+                },
+                {
+                    field: 'yjrq',
+                    title: '预警日期'
+                },
+                {
+                    field: 'glbm',
+                    title: '管理部门'
+                },
+                {
+                    field: 'sbbh',
+                    title: '设备编号 (需要和 dev_vio_equiment 表关联)'
+                },
+                {
+                    field: 'sbmc',
+                    title: '设备名称'
+                },
+                {
+                    field: 'wfsj',
+                    title: '违法时间'
+                },
+                {
+                    field: 'zt',
+                    title: '状态'
+                },
+                {
+                    field: 'syzt',
+                    title: '试用状态'
+                },
+                {
+                    field: 'cjsj',
+                    title: '采集时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

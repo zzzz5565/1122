@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitong.business.mapper.VioSurveilMapper">
+    
+    <resultMap type="VioSurveil" id="VioSurveilResult">
+        <result property="id"    column="id"    />
+        <result property="yjrq"    column="yjrq"    />
+        <result property="glbm"    column="glbm"    />
+        <result property="sbbh"    column="sbbh"    />
+        <result property="sbmc"    column="sbmc"    />
+        <result property="wfsj"    column="wfsj"    />
+        <result property="wfxw"    column="wfxw"    />
+        <result property="zt"    column="zt"    />
+        <result property="syzt"    column="syzt"    />
+        <result property="cjsj"    column="cjsj"    />
+    </resultMap>
+
+    <sql id="selectVioSurveilVo">
+        select id, yjrq, glbm, sbbh, sbmc, wfsj, zt, syzt, cjsj from vio_surveil
+    </sql>
+
+    <select id="selectVioSurveilList" parameterType="VioSurveil" resultMap="VioSurveilResult">
+        <include refid="selectVioSurveilVo"/>
+        <where>  
+            <if test="params.beginYjrq != null and params.beginYjrq != ''">
+                and date_format(yjrq,'%y%m%d') &gt;= date_format(#{params.beginYjrq},'%y%m%d')
+            </if>
+            <if test="params.endYjrq != null and params.endYjrq != ''">
+                and date_format(yjrq,'%y%m%d') &lt;= date_format(#{params.endYjrq},'%y%m%d')
+            </if>
+            <if test="glbm != null  and glbm != ''"> and glbm like concat('%', #{glbm}, '%')</if>
+            <if test="sbbh != null  and sbbh != ''"> and sbbh like concat('%', #{sbbh}, '%')</if>
+            <if test="sbmc != null  and sbmc != ''"> and sbmc like concat('%', #{sbmc}, '%')</if>
+            <if test="wfsj != null "> and wfsj = #{wfsj}</if>
+            <if test="zt != null  and zt != ''"> and zt like concat('%', #{zt}, '%')</if>
+            <if test="syzt != null  and syzt != ''"> and syzt like concat('%', #{syzt}, '%')</if>
+            <if test="wfxw != null  and wfxw != ''"> and wfxw like concat('%', #{wfxw}, '%')</if>
+            <if test="cjsj != null "> and cjsj = #{cjsj}</if>
+        </where>
+    </select>
+
+    <select id="selectVioSurveilLists" parameterType="VioSurveil" resultMap="VioSurveilResult">
+        select f.bmmc glbm, t.sbbh, d.sbmc, t.wfsj, t.wfxw, d.zt, d.syzt from vio_surveil_screen_err t
+        left join dev_vio_equipment d on t.sbbh = d.sbbh
+        left join fre_dep f on f.glbm = substr(d.glbm,1,6)
+        where d.zt in ('2','3')
+        and wfsj >= to_date(#{strDayStart},'yyyy-mm-dd hh24:mi:ss')
+        and t.wfsj &lt;= to_date(#{strDayEnd},'yyyy-mm-dd hh24:mi:ss')
+    </select>
+
+    <!--    判断是否存在-->
+    <select id="selectDevInUseBySbbh" parameterType="VioSurveil" resultMap="VioSurveilResult">
+        select * from vio_surveil t
+        where t.sbbh = #{sbbh} and t.yjrq = #{strDayStart}
+    </select>
+
+    <select id="selectVioSurveilById" parameterType="Long" resultMap="VioSurveilResult">
+        <include refid="selectVioSurveilVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertVioSurveil" parameterType="VioSurveil" useGeneratedKeys="true" keyProperty="id">
+        insert into vio_surveil
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">yjrq,</if>
+            <if test="glbm != null">glbm,</if>
+            <if test="sbbh != null">sbbh,</if>
+            <if test="sbmc != null">sbmc,</if>
+            <if test="wfsj != null">wfsj,</if>
+            <if test="zt != null">zt,</if>
+            <if test="syzt != null">syzt,</if>
+            <if test="wfxw != null">wfxw,</if>
+            <if test="cjsj != null">cjsj,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yjrq != null">#{yjrq},</if>
+            <if test="glbm != null">#{glbm},</if>
+            <if test="sbbh != null">#{sbbh},</if>
+            <if test="sbmc != null">#{sbmc},</if>
+            <if test="wfsj != null">#{wfsj},</if>
+            <if test="zt != null">#{zt},</if>
+            <if test="syzt != null">#{syzt},</if>
+            <if test="wfxw != null">#{wfxw},</if>
+            <if test="cjsj != null">#{cjsj},</if>
+         </trim>
+    </insert>
+
+    <update id="updateVioSurveil" parameterType="VioSurveil">
+        update vio_surveil
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yjrq != null">yjrq = #{yjrq},</if>
+            <if test="glbm != null">glbm = #{glbm},</if>
+            <if test="sbbh != null">sbbh = #{sbbh},</if>
+            <if test="sbmc != null">sbmc = #{sbmc},</if>
+            <if test="wfsj != null">wfsj = #{wfsj},</if>
+            <if test="zt != null">zt = #{zt},</if>
+            <if test="syzt != null">syzt = #{syzt},</if>
+            <if test="cjsj != null">cjsj = #{cjsj},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteVioSurveilById" parameterType="Long">
+        delete from vio_surveil where id = #{id}
+    </delete>
+
+    <delete id="deleteVioSurveilByYjrq" parameterType="Long">
+        delete from vio_surveil where yjrq = #{strDayStart}
+    </delete>
+
+    <delete id="deleteVioSurveilByIds" parameterType="String">
+        delete from vio_surveil where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

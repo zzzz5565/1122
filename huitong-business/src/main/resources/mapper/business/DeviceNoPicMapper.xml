@@ -31,14 +31,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         AND sbbh IN (
         SELECT sbbh
         FROM dev_vio_equipment
-        WHERE zt = 1 AND sblx NOT IN ('6', '5')
+        WHERE zt = 1 AND sblx NOT IN ('6', '5') AND sbfl = '1'
         )
         GROUP BY sbbh
         HAVING COUNT(1) &lt; 3
         UNION ALL
         SELECT sbbh, 0 sl
         FROM dev_vio_equipment c
-        WHERE zt = 1 AND sblx NOT IN ('6', '5')
+        WHERE zt = 1 AND sblx NOT IN ('6', '5') AND sbfl = '1'
         AND sbbh NOT IN (
         SELECT sbbh
         FROM dev_vio_equipment_pic
@@ -61,7 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         d.glbm
         FROM temp_sbbh t
         JOIN dev_vio_equipment d ON t.sbbh = d.sbbh
-        WHERE t.sbbh NOT IN (SELECT sbbh FROM excluded_sbbh)
+        WHERE t.sbbh NOT IN (SELECT sbbh FROM excluded_sbbh) AND d.sbfl = '1'
         <where>
             <if test="sbbh != null  and sbbh != ''"> and d.sbbh like '%' || #{sbbh} || '%'</if>
             <if test="sbmc != null  and sbmc != ''"> and d.sbmc like '%' || #{sbmc} || '%'</if>

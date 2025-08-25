@@ -79,7 +79,7 @@ public class DevVioEquWarningDept extends BaseEntity
     private String csyc;
 
     @Excel(name = "违法上传失败")
-    private Integer zfscsb;
+    private String zfscsb;
 
     /** 作废率 */
     private String zfl;     // 作废率
@@ -94,7 +94,9 @@ public class DevVioEquWarningDept extends BaseEntity
     private String pjz;     // 平均值
     private String result;  // 激增巨减结果
     private String dsh;     // 待审核
-
+    private String ztycsc;  // 状态异常上传
+    private String syzt;  // 状态异常上传
+    private Date wfsj;
     /** 比值 */
     private String bz;
 
@@ -340,12 +342,30 @@ public class DevVioEquWarningDept extends BaseEntity
         this.dsh = dsh;
     }
 
-    public Integer getZfscsb() {return zfscsb;}
+    public String getZfscsb() {return zfscsb;}
 
-    public void setZfscsb(Integer zfscsb) {
+    public void setZfscsb( String zfscsb) {
         this.zfscsb = zfscsb;
     }
+    public Date getWfsj() {return wfsj;}
 
+    public void setWfsj(Date wfsj) {this.wfsj = wfsj;}
+
+    public String getZtycsc() {
+        return ztycsc;
+    }
+
+    public void setZtycsc(String ztycsc) {
+        this.ztycsc = ztycsc;
+    }
+
+    public String getSyzt() {
+        return syzt;
+    }
+
+    public void setSyzt(String syzt) {
+        this.syzt = syzt;
+    }
 
     @Override
     public String toString() {

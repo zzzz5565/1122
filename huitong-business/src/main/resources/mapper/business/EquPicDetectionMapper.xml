@@ -32,22 +32,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from
         (select d.sbbh,e.sbmc,d.wjmc,e.glbm
         from dev_vio_equipment_pic d,dev_vio_equipment e
-        where e.sbbh=d.sbbh and e.zt=1 and d.xh =1)a,
+        where e.sbbh=d.sbbh and e.zt=1 and d.xh =1 AND e.sbfl = '1')a,
         (select d.sbbh,e.sbmc,d.wjmc,e.glbm
         from dev_vio_equipment_pic d,dev_vio_equipment e
-        where e.sbbh=d.sbbh and e.zt=1 and d.xh =2)b,
+        where e.sbbh=d.sbbh and e.zt=1 and d.xh =2 AND e.sbfl = '1')b,
         (select d.sbbh,e.sbmc,d.wjmc,e.glbm
         from dev_vio_equipment_pic d,dev_vio_equipment e
-        where e.sbbh=d.sbbh and e.zt=1 and d.xh =3)c
+        where e.sbbh=d.sbbh and e.zt=1 and d.xh =3 AND e.sbfl = '1')c
         where a.wjmc =b.wjmc and a.wjmc =c.wjmc and a.sbbh=b.sbbh and a.sbbh = c.sbbh
 
         )d
         WHERE SBBH NOT IN
         (
         select a.sbbh from
-        (select d.sbbh,d.wjmc from dev_vio_equipment_pic_TEMP d,dev_vio_equipment e where e.sbbh=d.sbbh and e.zt=1 and d.xh =1)a,
-        (select d.sbbh,d.wjmc from dev_vio_equipment_pic_TEMP d,dev_vio_equipment e where e.sbbh=d.sbbh and e.zt=1 and d.xh =2)b,
-        (select d.sbbh,d.wjmc from dev_vio_equipment_pic_TEMP d,dev_vio_equipment e where e.sbbh=d.sbbh and e.zt=1 and d.xh =3)c
+        (select d.sbbh,d.wjmc from dev_vio_equipment_pic_TEMP d,dev_vio_equipment e where e.sbbh=d.sbbh and e.zt=1 and d.xh =1 AND e.sbfl = '1')a,
+        (select d.sbbh,d.wjmc from dev_vio_equipment_pic_TEMP d,dev_vio_equipment e where e.sbbh=d.sbbh and e.zt=1 and d.xh =2 AND e.sbfl = '1')b,
+        (select d.sbbh,d.wjmc from dev_vio_equipment_pic_TEMP d,dev_vio_equipment e where e.sbbh=d.sbbh and e.zt=1 and d.xh =3 AND e.sbfl = '1')c
         where a.wjmc !=b.wjmc and a.wjmc !=c.wjmc and a.sbbh=b.sbbh and a.sbbh = c.sbbh
         )
         <where>
