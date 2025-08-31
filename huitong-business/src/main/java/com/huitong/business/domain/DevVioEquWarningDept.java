@@ -25,6 +25,11 @@ public class DevVioEquWarningDept extends BaseEntity
     @Excel(name = "预警日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date yjrq;
 
+    /** 数据统计日期 */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "数据统计日期", width = 30, dateFormat = "yyyy-MM-dd")
+    private Date tjrq;
+
     /** 管理部门 */
     @Excel(name = "管理部门")
     private String glbm;
@@ -34,16 +39,12 @@ public class DevVioEquWarningDept extends BaseEntity
     private String sbbh;
 
     /** 预警类型 */
-    @Excel(name = "预警类型")
+//    @Excel(name = "预警类型")
     private Integer yjllx;
 
     /** 预警内容 */
-    @Excel(name = "预警内容")
+//    @Excel(name = "预警内容")
     private Integer yjlx;
-
-    /** 违法数量 */
-    @Excel(name = "违法数量")
-    private String shuliang;
 
     /** 违法行为 */
     @Excel(name = "违法行为")
@@ -51,7 +52,7 @@ public class DevVioEquWarningDept extends BaseEntity
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd")
+//    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date cjsj;
 
     /** 无数据上传 */
@@ -61,6 +62,9 @@ public class DevVioEquWarningDept extends BaseEntity
     /** 状态异常变化 */
     @Excel(name = "状态异常变化")
     private String ztyc;
+
+    @Excel(name = "状态异常上传")
+    private String ztycsc;
 
     /** 抓拍量异常 */
     @Excel(name = "抓拍量异常")
@@ -78,27 +82,36 @@ public class DevVioEquWarningDept extends BaseEntity
     @Excel(name = "初审异常")
     private String csyc;
 
-    @Excel(name = "违法上传失败")
-    private String zfscsb;
-
     /** 作废率 */
     private String zfl;     // 作废率
+    @Excel(name = "抓拍量")
     private String zpl;     // 抓拍量
+    @Excel(name = "初审作废量")
     private String cszfl;   // 初审作废量
-    private String sblx;    // 设备类型
+    @Excel(name = "设备名称")
     private String sbmc;    // 设备名称
+    @Excel(name = "设备类型", dictType = "device_type")
+    private String sblx;    // 设备类型
+    @Excel(name = "状态", dictType = "device_zt")
     private String zt;      // 状态
+    @Excel(name = "预警前一天状态", dictType = "device_zt")
     private String zt2;     // 状态2
     private Date preDate;   // 平均值的开始日期
     private Date endDate;   // 平均值的结束日期
+    @Excel(name = "平均值")
     private String pjz;     // 平均值
-    private String result;  // 激增巨减结果
+    @Excel(name = "待审核")
     private String dsh;     // 待审核
-    private String ztycsc;  // 状态异常上传
     private String syzt;  // 状态异常上传
     private Date wfsj;
+    /** 违法数量 */
+    @Excel(name = "违法数量")
+    private String shuliang;
     /** 比值 */
+    @Excel(name = "占比")
     private String bz;
+    @Excel(name = "结果")
+    private String result;  // 激增巨减结果
 
     public void setId(Long id) 
     {
@@ -156,7 +169,11 @@ public class DevVioEquWarningDept extends BaseEntity
     }
     public void setShuliang(String shuliang) 
     {
-        this.shuliang = shuliang;
+        if (shuliang != null && shuliang.contains(".")) {
+            this.shuliang = shuliang.split("\\.")[0]; // 取小数点前的部分
+        } else {
+            this.shuliang = shuliang;
+        }
     }
 
     public String getShuliang() 
@@ -254,7 +271,11 @@ public class DevVioEquWarningDept extends BaseEntity
     }
 
     public void setZpl(String zpl) {
-        this.zpl = zpl;
+        if (zpl != null && zpl.contains(".")) {
+            this.zpl = zpl.split("\\.")[0]; // 取小数点前的部分
+        } else {
+            this.zpl = zpl;
+        }
     }
 
     public String getCszfl() {
@@ -339,14 +360,13 @@ public class DevVioEquWarningDept extends BaseEntity
     }
 
     public void setDsh(String dsh) {
-        this.dsh = dsh;
+        if (dsh != null && dsh.contains(".")) {
+            this.dsh = dsh.split("\\.")[0]; // 取小数点前的部分
+        } else {
+            this.dsh = dsh;
+        }
     }
 
-    public String getZfscsb() {return zfscsb;}
-
-    public void setZfscsb( String zfscsb) {
-        this.zfscsb = zfscsb;
-    }
     public Date getWfsj() {return wfsj;}
 
     public void setWfsj(Date wfsj) {this.wfsj = wfsj;}
@@ -365,6 +385,14 @@ public class DevVioEquWarningDept extends BaseEntity
 
     public void setSyzt(String syzt) {
         this.syzt = syzt;
+    }
+
+    public Date getTjrq() {
+        return tjrq;
+    }
+
+    public void setTjrq(Date tjrq) {
+        this.tjrq = tjrq;
     }
 
     @Override

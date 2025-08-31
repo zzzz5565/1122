@@ -42,10 +42,10 @@ public class BaseEntity implements Serializable
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, Object> params;
 
-    private Integer pageNum;
-    private Integer pageSize;
+    private static Integer pageNum;
+    private static Integer pageSize;
 
-    public Integer getPageNum() {
+    public static Integer getPageNum() {
         return pageNum;
     }
 
@@ -53,7 +53,7 @@ public class BaseEntity implements Serializable
         this.pageNum = pageNum;
     }
 
-    public Integer getPageSize() {
+    public static Integer getPageSize() {
         return pageSize;
     }
 

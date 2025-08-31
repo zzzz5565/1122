@@ -35,7 +35,7 @@ public interface IDevVioEquWarningDeptService
     public List<DevVioEquWarningDept> selectZplycList(DevVioEquWarningDept devVioEquWarningDept);
     public List<DevVioEquWarningDept> selectSjjzList(DevVioEquWarningDept devVioEquWarningDept);
     public List<DevVioEquWarningDept> selectSjjjList(DevVioEquWarningDept devVioEquWarningDept);
-    public List<DevVioEquWarningDept> selectZfscsbList(DevVioEquWarningDept devVioEquWarningDept);
+    public List<DevVioEquWarningDept> selectZtycscList(DevVioEquWarningDept devVioEquWarningDept);
     /**
      * 新增设备预警
      * 

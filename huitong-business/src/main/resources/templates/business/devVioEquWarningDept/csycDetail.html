@@ -7,6 +7,11 @@
 <body class="gray-bg">
      <div class="container-div">
         <div class="row">
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn new_btn_daoChu" onclick="exportCsyc()">
+                    导出Excel
+                </a>
+            </div>
             <div class="col-sm-12 select-table table-striped">
                 <table id="bootstrap-table"></table>
             </div>
@@ -25,8 +30,7 @@
         $(function() {
             var options = {
                 url: prefix + "/csycDetailList/"+yjlx+"/"+glbm+"/"+yjrq,
-                exportUrl: prefix + "/export",
-                exportZipUrl: prefix + "/exportZip",
+
                 modalName: "设备初审异常明细",
                 columns: [{
                     checkbox: true
@@ -36,9 +40,17 @@
                     title: 'id',
                     visible: false
                 },
+                // {
+                //     field: 'yjrq',
+                //     title: '预警日期',
+                //     formatter: function(value, row, index) {
+                //         // 截取日期部分（前10个字符：yyyy-mm-dd）
+                //         return value ? value.substring(0, 10) : '';
+                //     }
+                // },
                 {
-                    field: 'yjrq',
-                    title: '预警日期',
+                    field: 'tjrq',
+                    title: '数据统计日期',
                     formatter: function(value, row, index) {
                         // 截取日期部分（前10个字符：yyyy-mm-dd）
                         return value ? value.substring(0, 10) : '';
@@ -67,6 +79,9 @@
                     field: 'zpl',
                     title: '抓拍量',
                     align: 'center',
+                    formatter: function(value) {
+                        return parseInt(value);
+                    }
                 },
                 {
                     field: 'cszfl',
@@ -84,6 +99,10 @@
             };
             $.table.init(options);
         });
+
+        function exportCsyc() {
+            window.location.href = prefix + '/exportCsyc?glbm=' + glbm + '&yjrq=' + yjrq;
+        }
 
     </script>
 </body>

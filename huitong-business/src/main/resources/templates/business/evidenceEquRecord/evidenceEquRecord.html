@@ -71,12 +71,12 @@
 <!--                    <i class="fa fa-remove"></i> 删除-->
 <!--                </a>-->
 <!--                &lt;!&ndash;-->
-                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="business:evidenceEquRecord:export">
-                    <i class="fa fa-download"></i> 导出Excel
+                <a class="btn new_btn_daoChu" onclick="$.table.exportExcel()" shiro:hasPermission="business:evidenceEquRecord:export">
+                    导出Excel
                 </a>
 <!--                &ndash;&gt;-->
-<!--                <a class="btn btn-warning" onclick="$.table.exportZip()" shiro:hasPermission="business:evidenceEquRecord:export">-->
-<!--                    <i class="fa fa-download"></i> 导出Zip-->
+<!--                <a class="btn new_btn_daoChu" onclick="$.table.exportZip()" shiro:hasPermission="business:evidenceEquRecord:export">-->
+<!--                    导出Zip-->
 <!--                </a>-->
             </div>
             <div class="col-sm-12 select-table table-striped">
@@ -91,6 +91,43 @@
         var removeFlag = [[${@permission.hasPermi('business:evidenceEquRecord:remove')}]];
         var glbmDatas = [[${@dict.getType('device_glbm')}]];
         var prefix = ctx + "business/evidenceEquRecord";
+
+
+        function staFormatter(value, row, index, field) {
+            var ztlx = '';
+            switch (field) {
+                case "basl": ztlx = 'BA'; break;
+                case "qysl": ztlx = 'QY'; break;
+                case "tysl": ztlx = 'TY'; break;
+                case "qtztsl": ztlx = 'QT'; break;
+                case "xzdspsl": ztlx = 'XZSP'; break;
+                case "ztzcsbspzsl": ztlx = 'ZCSZ'; break;
+                case "zfsl": ztlx = 'ZF'; break;
+                default: ztlx = 'UNKNOWN';
+            }
+
+            if (value && value > 0 && row.bmbm){
+                return `<a style="color: #337ab7; text-decoration: underline; cursor: pointer;" onclick="showStatusDetail('${ztlx}', '${row.bmbm}')">${value}</a>`;
+            }
+            return value;
+        }
+
+        function showStatusDetail(ztlx, bmbm) {
+            const url = prefix + '/detail/' + ztlx +'/' + bmbm;
+            var options = {
+                title: "设备详情列表",
+                width: '800',
+                method: 'post',
+                height: ($(window).height() - 50),
+                url: url,
+                skin: 'layui-layer-gray',
+                btn: ['关闭'],
+                yes: function (index, layero) {
+                    $.modal.close(index);
+                }
+            };
+            $.modal.openOptions(options);
+        }
 
         $(function() {
             var options = {
@@ -112,6 +149,7 @@
                 {
                     field: 'glbm',
                     title: '大队编号',
+
                     // formatter: function(value, row, index) {
                     //    return $.table.selectDictLabel(glbmDatas, value);
                     // }
@@ -122,31 +160,38 @@
                 },
                 {
                     field: 'basl',
-                    title: '备案数量'
+                    title: '备案数量',
+                    formatter:staFormatter,
                 },
                 {
                     field: 'qysl',
-                    title: '在用数量'
+                    title: '在用数量',
+                    formatter:staFormatter,
                 },
                 {
                     field: 'tysl',
-                    title: '停用数量'
+                    title: '停用数量',
+                    formatter:staFormatter,
                 },
                 {
                     field: 'qtztsl',
-                    title: '其它状态(上级停用)数量'
+                    title: '其它状态(上级停用)数量',
+                    formatter:staFormatter,
                 },
                 {
                     field: 'xzdspsl',
-                    title: '新增待审批数量'
+                    title: '新增待审批数量',
+                    formatter:staFormatter,
                 },
                 {
                     field: 'ztzcsbspzsl',
-                    title: '状态正常设备审批中数量'
+                    title: '状态正常设备审批中数量',
+                    formatter:staFormatter,
                 },
                 {
                     field: 'zfsl',
-                    title: '作废数量'
+                    title: '作废数量',
+                    formatter:staFormatter,
                 }
                 // ,
                 // {
@@ -163,6 +208,7 @@
             };
             $.table.init(options);
         });
+
     </script>
 </body>
 </html>

@@ -7,6 +7,11 @@
 <body class="gray-bg">
      <div class="container-div">
         <div class="row">
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn new_btn_daoChu" onclick="exportSjjz()">
+                    导出Excel
+                </a>
+            </div>
             <div class="col-sm-12 select-table table-striped">
                 <table id="bootstrap-table"></table>
             </div>
@@ -81,6 +86,10 @@
             };
             $.table.init(options);
         });
+
+        function exportSjjz() {
+            window.location.href = prefix + '/exportSjjz?glbm=' + glbm + '&yjrq=' + yjrq;
+        }
 
     </script>
 </body>

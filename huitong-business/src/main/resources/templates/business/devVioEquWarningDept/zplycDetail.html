@@ -7,6 +7,11 @@
 <body class="gray-bg">
      <div class="container-div">
         <div class="row">
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn new_btn_daoChu" onclick="exportZplyc()">
+                    导出Excel
+                </a>
+            </div>
             <div class="col-sm-12 select-table table-striped">
                 <table id="bootstrap-table"></table>
             </div>
@@ -71,7 +76,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        actions.push('<a class="btn btn-xs" href="javascript:void(0)" onclick="getXq(\'' + row.sbbh + '\', \'' + row.sblx + '\')">' + value + '</a> ');
+                        actions.push('<a class="btn btn-xs" href="javascript:void(0)" onclick="getXq(\'' + row.sbbh + '\', \'' + row.yjrq + '\')">' + value + '</a> ');
                         return actions.join('');
                     }
                 }]
@@ -79,8 +84,8 @@
             $.table.init(options);
         });
 
-        function getXq(sbbh, sblx) {
-            var url = ctx + 'business/devVioEquipment/getXq/' + sbbh + '/' + sblx;
+        function getXq(sbbh, yjrq) {
+            var url = ctx + 'business/devVioEquipment/getXq/' + sbbh + '/' + yjrq;
 
             layer.open({
                 type: 2, // 2代表iframe层
@@ -91,6 +96,10 @@
                 area: ['80%', '400px'], // 在这里设置宽高
                 content: url // iframe的url
             });
+        }
+
+        function exportZplyc() {
+            window.location.href = prefix + '/exportZplyc?glbm=' + glbm + '&yjrq=' + yjrq;
         }
 
     </script>

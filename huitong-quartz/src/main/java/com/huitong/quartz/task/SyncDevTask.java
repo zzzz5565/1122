@@ -74,17 +74,17 @@ public class SyncDevTask {
 //        }
     }
 
-    // 同步在用设备执法情况（按5天前之和来同步）
+    // 同步在用设备执法情况（按5天前来同步）
     public void getDevInUse5() throws ParseException {
 //        try {
         LocalDate currentDate = LocalDate.now();
         // 获取前六天的日期
         LocalDate previousDate = currentDate.minusDays(5);
         LocalDateTime startTime = LocalDateTime.of(previousDate, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(previousDate, LocalTime.MAX);
         // 定义结束时间为前一天的23:59:59
         LocalDate endDate = currentDate.minusDays(1);
         LocalDateTime yjrq = LocalDateTime.of(endDate, LocalTime.MIN);
-        LocalDateTime endTime = LocalDateTime.of(endDate, LocalTime.MAX);
 
         // 定义日期时间格式
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -103,6 +103,7 @@ public class SyncDevTask {
         DynamicDataSourceContextHolder.clearDataSourceType();
         for (DevInUse devInUse1 : list) {
             devInUse1.setYjrq(sdf.parse(yjrqstr));
+            devInUse1.setTjrq(sdf.parse(strDayStart));
             devInUse1.setCjsj(new Date());
             DevInUse existDevInUse = devInUseService.selectDevInUseBySbbh5(devInUse1.getSbbh(), strDayStart);
             if (existDevInUse == null) {

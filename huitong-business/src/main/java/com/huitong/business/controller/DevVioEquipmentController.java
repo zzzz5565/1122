@@ -1,5 +1,7 @@
 package com.huitong.business.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -67,11 +69,11 @@ public class DevVioEquipmentController extends BaseController
 
     }
 
-    @GetMapping("/getXq/{sbbh}/{sblx}")
-    public String getXq(@PathVariable("sbbh") String sbbh, @PathVariable("sblx") String sblx, ModelMap mmap)
+    @GetMapping("/getXq/{sbbh}/{yjrq}")
+    public String getXq(@PathVariable("sbbh") String sbbh, @PathVariable("yjrq") String yjrq, ModelMap mmap)
     {
         mmap.put("sbbh", sbbh);
-        mmap.put("sblx", sblx);
+        mmap.put("yjrq", yjrq);
         return prefix2 + "/yjExceptionDetails/yjExceptionDetails";
     }
 
@@ -79,19 +81,18 @@ public class DevVioEquipmentController extends BaseController
      * 查询设备信息列表
      */
     @RequiresPermissions("business:devVioEquipment:list")
-    @PostMapping("/xqList/{sbbh}")
+    @PostMapping("/xqList/{sbbh}/{yjrq}")
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo xqList(@PathVariable("sbbh") String sbbh, ModelMap mmap)
-    {
+    public TableDataInfo xqList(@PathVariable("sbbh") String sbbh, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarning devVioEquWarning = new DevVioEquWarning();
         devVioEquWarning.setSbbh(sbbh);
-        System.out.println("=========devVioEquipment=========" + devVioEquWarning);
-//        devVioEquWarning.setSbbh("37061300000005121");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date yjrqDate = sdf.parse(yjrq);
+        devVioEquWarning.setYjrq(yjrqDate);
         startPage();
         List<DevVioEquWarning> list = devVioEquWarningService.selectDevVioEquWarningLists(devVioEquWarning);
-        System.out.println("===========list==========" + list);
         return getDataTable(list);
     }
 

@@ -1,6 +1,8 @@
 package com.huitong.business.service;
 
 import java.util.List;
+
+import com.huitong.business.domain.DevVioEquipment;
 import com.huitong.business.domain.EvidenceEquRecord;
 
 /**
@@ -60,4 +62,10 @@ public interface IEvidenceEquRecordService
      * @return 结果
      */
     public int deleteEvidenceEquRecordById(Long id);
+
+    public List<DevVioEquipment> selectTempDetailList(String bmbm);
+
+    public List<DevVioEquipment> selectDetailList(String ztlx, String bmbm);
+    public List<DevVioEquipment> selectDetailListForBA(String bmbm);
+    public long countDetailListForBA(String bmbm);
 }

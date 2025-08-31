@@ -61,12 +61,12 @@
 <!--                    <i class="fa fa-remove"></i> 删除-->
 <!--                </a>-->
 <!--                &lt;!&ndash;-->
-                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="business:carQueryDaily:export">
-                    <i class="fa fa-download"></i> 导出Excel
+                <a class="btn new_btn_daoChu" onclick="$.table.exportExcel()" shiro:hasPermission="business:carQueryDaily:export">
+                    导出Excel
                 </a>
 <!--                &ndash;&gt;-->
-<!--                <a class="btn btn-warning" onclick="$.table.exportZip()" shiro:hasPermission="business:carQueryDaily:export">-->
-<!--                    <i class="fa fa-download"></i> 导出Zip-->
+<!--                <a class="btn new_btn_daoChu" onclick="$.table.exportZip()" shiro:hasPermission="business:carQueryDaily:export">-->
+<!--                    导出Zip-->
 <!--                </a>-->
             </div>
             <div class="col-sm-12 select-table table-striped">
@@ -120,7 +120,13 @@
                 },
                 {
                     field: 'bs',
-                    title: '高出全省日查询量倍数'
+                    title: '高出全省日查询量倍数',
+                    formatter: function(value, row, index) {
+                        if (value != null && !isNaN(parseFloat(value))) {
+                            return Number(value).toFixed(2);
+                        }
+                        return value;
+                    }
                 }
                 // ,
                 // {

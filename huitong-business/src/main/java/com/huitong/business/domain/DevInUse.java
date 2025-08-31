@@ -25,6 +25,11 @@ public class DevInUse extends BaseEntity
     @Excel(name = "预警日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date yjrq;
 
+    /** 数据统计日期 */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "数据统计日期", width = 30, dateFormat = "yyyy-MM-dd")
+    private Date tjrq;
+
     /** 管理部门 */
     @Excel(name = "管理部门")
     private String glbm;
@@ -260,6 +265,14 @@ public class DevInUse extends BaseEntity
 
     public void setPreDate(Date preDate) {
         this.preDate = preDate;
+    }
+
+    public Date getTjrq() {
+        return tjrq;
+    }
+
+    public void setTjrq(Date tjrq) {
+        this.tjrq = tjrq;
     }
 
     @Override

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('设备详情列表')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+
+
+<!--<script th:inline="javascript">-->
+<!--    /*<![CDATA[*/-->
+
+<!--    var prefix = ctx + "business/evidenceEquRecord";-->
+
+<!--    var ztlx = [[${ztlx}]];-->
+<!--    var bmbm = [[${bmbm}]];-->
+
+<!--    $(function() {-->
+<!--        var options = {-->
+<!--            url: prefix + "/detailList/" + ztlx + "/" + bmbm,-->
+<!--            method: 'post',-->
+<!--            pagination: true,-->
+<!--            pageSize: 10,-->
+<!--            pageList: [10, 25, 50, 100],-->
+<!--            sidePagination: 'server',-->
+<!--            modalName: "设备详情",-->
+<!--            responseHandler: function(res) {-->
+<!--                var encryption = window.localStorage.getItem("encryption");-->
+<!--                if (encryption == true || encryption == "true") {-->
+<!--                    if (typeof res !== 'string' || res.trim() === '') {-->
+<!--                        return res;-->
+<!--                    }-->
+
+<!--                    let plaintext;-->
+<!--                    try {-->
+<!--                        if (!window.responseprivatekey) {-->
+<!--                            $.ajax({-->
+<!--                                type: "post",-->
+<!--                                url: ctx + "responseprivatekey",-->
+<!--                                async: false,-->
+<!--                                success: function (keyres) {-->
+<!--                                    window.responseprivatekey = keyres;-->
+<!--                                }-->
+<!--                            });-->
+<!--                        }-->
+
+<!--                        const encryptor = new JSEncrypt();-->
+<!--                        encryptor.setPrivateKey(window.responseprivatekey);-->
+
+<!--                        plaintext = encryptor.decryptLong2(res);-->
+
+<!--                        if (!plaintext) {-->
+<!--                            console.error("解密失败！返回了 null。");-->
+<!--                            return { total: 0, rows: [] };-->
+<!--                        }-->
+
+<!--                        plaintext = decodeURIComponent(plaintext);-->
+
+<!--                        return JSON.parse(plaintext);-->
+
+<!--                    } catch (e) {-->
+<!--                        console.error("======[设备详情页] 解密或JSON解析过程出错!======");-->
+<!--                        console.error("错误详情:", e);-->
+<!--                        console.error("后端返回的原始加密数据:", res);-->
+<!--                        console.error("解密后，导致解析失败的【问题字符串】是:");-->
+<!--                        console.log(plaintext);-->
+
+<!--                        return { total: 0, rows: [] };-->
+<!--                    }-->
+<!--                }-->
+<!--                return res;-->
+<!--            },-->
+<!--            onLoadBefore: function (data) {-->
+<!--                $.modal.loading("正在加载数据，请稍后...");-->
+<!--            },-->
+
+<!--            onLoadSuccess: function(data) {-->
+<!--                $.modal.closeLoading();-->
+<!--            },-->
+<!--            onLoadError: function(status, res) {-->
+<!--                $.modal.closeLoading();-->
+<!--            },-->
+
+<!--            columns: [{-->
+<!--                checkbox: true-->
+<!--            },-->
+<!--                {-->
+<!--                    field: 'bmmc',-->
+<!--                    title: '大队名称'-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'sbbh',-->
+<!--                    title: '设备编号'-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'sbmc',-->
+<!--                    title: '设备名称'-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'sblx',-->
+<!--                    title: '设备类型'-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'zt',-->
+<!--                    title: '状态',-->
+<!--                    align: 'center',-->
+<!--                    formatter: function(value, row, index) {-->
+<!--                        if (value == '1') {-->
+<!--                            return '<span class="label label-primary">在用</span>';-->
+<!--                        } else if (value == '2') {-->
+<!--                            return '<span class="label label-warning">停用</span>';-->
+<!--                        } else if (value == '3') {-->
+<!--                            return '<span class="label label-danger">作废</span>';-->
+<!--                        }-->
+<!--                        else if (row.sbbh && row.sbbh.startsWith('TEMP_')) {-->
+<!--                            return '<span class="label label-info">待审批</span>';-->
+<!--                        }-->
+<!--                        else if (value == '4') {-->
+<!--                            return '<span class="label label-info">待审批</span>';-->
+<!--                        }-->
+<!--                        return '<span class="label label-default">其它</span>';-->
+<!--                    }-->
+<!--                }]-->
+<!--        };-->
+<!--        $('#bootstrap-table').bootstrapTable(options);-->
+<!--    });-->
+
+<!--    /*]]>*/-->
+<!--</script>-->
+
+
+<script th-inline="javascript">
+    /*<![CDATA[*/
+
+    var prefix = ctx + "business/evidenceEquRecord";
+    var ztlx = '[[${ztlx}]]';
+    var bmbm = '[[${bmbm}]]';
+
+    $(function() {
+        var options = {
+            url: prefix + "/detailList/" + ztlx + "/" + bmbm,
+            method: 'post',
+            contentType: "application/x-www-form-urlencoded", // 1. 明确内容类型
+            queryParams: function(params) {
+                return {
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1
+                };
+            },
+
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50, 100],
+            sidePagination: 'server',
+            modalName: "设备详情",
+            onLoadBefore: function (data) {
+                $.modal.loading("正在加载数据，请稍后...");
+            },
+            onLoadSuccess: function(data) {
+                $.modal.closeLoading();
+            },
+            onLoadError: function(status, res) {
+                $.modal.closeLoading();
+            },
+
+            columns: [
+                { checkbox: true },
+                { field: 'bmmc', title: '大队名称' },
+                { field: 'sbbh', title: '设备编号' },
+                { field: 'sbmc', title: '设备名称' },
+                { field: 'sblx', title: '设备类型' },
+                {
+                    field: 'zt',
+                    title: '状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        if (value == '1') return '<span class="label label-primary">在用</span>';
+                        if (value == '2') return '<span class="label label-warning">停用</span>';
+                        if (value == '3') return '<span class="label label-danger">作废</span>';
+                        if (row.sbbh && row.sbbh.startsWith('TEMP_')) return '<span class="label label-info">待审批</span>';
+                        if (value == '4') return '<span class="label label-info">待审批</span>';
+                        return '<span class="label label-default">其它</span>';
+                    }
+                }
+            ]
+        };
+
+
+         $('#bootstrap-table').bootstrapTable(options);
+        //$.table.init(options);
+    });
+
+    /*]]>*/
+</script>
+</body>
+</html>

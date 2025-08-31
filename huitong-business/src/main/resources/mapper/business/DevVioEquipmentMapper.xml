@@ -20,6 +20,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="gxsj"    column="gxsj"    />
         <result property="shuliang"    column="shuliang"    />
         <result property="daily"    column="daily"    />
+        <result property="syzt"    column="syzt"    />
     </resultMap>
 
     <sql id="selectDevVioEquipmentVo">
@@ -77,9 +78,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         group by
     </select>
     <select id="selectDevVioEquipmentListSlave" parameterType="DevVioEquipment" resultMap="DevVioEquipmentResult">
-        select e.glbm, b.bmmc as bmmc, e.sbbh, e.sblx, e.sbmc, e.zt, e.szdd, e.sbpp, e.qyrq, e.shsj, e.gxsj
+        select e.glbm, b.bmmc as bmmc, e.sbbh, e.sblx, e.sbmc, e.zt, e.szdd, e.sbpp, e.qyrq, e.shsj, e.gxsj, 1 syzt
         from dev_vio_equipment e
-        left join FRM_TMS_DEPARTMENT b on e.glbm=b.glbm
+        left join fre_dep b on substr(e.glbm,1,6) = b.glbm
+
+        union all
+
+        select e.glbm, b.bmmc as bmmc, e.sbbh, e.sblx, e.sbmc, e.zt, e.szdd, e.sbpp, e.qyrq, e.shsj, e.gxsj, 0 syzt
+        from dev_vio_equipment_temp e
+        left join fre_dep b on substr(e.glbm,1,6) = b.glbm
     </select>
     <select id="selectDevVioEquipmentById" parameterType="Long" resultMap="DevVioEquipmentResult">
         <include refid="selectDevVioEquipmentVo"/>
@@ -133,8 +140,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="szdd != null">szdd = #{szdd},</if>
             <if test="sbpp != null">sbpp = #{sbpp},</if>
             <if test="qyrq != null">qyrq = #{qyrq},</if>
-            <if test="shsj != null">qyrq = #{shsj},</if>
-            <if test="gxsj != null">qyrq = #{gxsj},</if>
+            <if test="shsj != null">shsj = #{shsj},</if>
+            <if test="gxsj != null">gxsj = #{gxsj},</if>
+            <if test="syzt != null">syzt = #{syzt},</if>
         </trim>
         where id = #{id}
     </update>
@@ -156,11 +164,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <insert id="insertDevVioEquEquipmentDailyBatch" parameterType="java.util.List">
         insert into dev_vio_equipment_daily
-        (daily, glbm, bmmc, sbbh, sblx, sbmc, zt, szdd, sbpp, qyrq, shsj, gxsj)
+        (daily, glbm, bmmc, sbbh, sblx, sbmc, zt, szdd, sbpp, qyrq, shsj, gxsj, syzt)
         values
         <foreach collection="list" item="item" separator=",">
             (#{item.daily}, #{item.glbm}, #{item.bmmc}, #{item.sbbh}, #{item.sblx},
-            #{item.sbmc}, #{item.zt}, #{item.szdd}, #{item.sbpp}, #{item.qyrq},
+            #{item.sbmc}, #{item.zt}, #{item.szdd}, #{item.sbpp}, #{item.qyrq}, #{item.syzt},
             #{item.shsj}, #{item.gxsj})
         </foreach>
     </insert>

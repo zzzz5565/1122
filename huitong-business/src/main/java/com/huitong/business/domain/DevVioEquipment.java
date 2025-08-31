@@ -85,6 +85,9 @@ public class DevVioEquipment extends BaseEntity
     /** 每天日期 */
     private String daily;
 
+    /** 试用状态 1正常 0试用 */
+    private String syzt;
+
     private Map<String, Object> params;
 
     public void setId(Long id)
@@ -233,6 +236,14 @@ public class DevVioEquipment extends BaseEntity
 
     public void setGxsj(Date gxsj) {
         this.gxsj = gxsj;
+    }
+
+    public String getSyzt() {
+        return syzt;
+    }
+
+    public void setSyzt(String syzt) {
+        this.syzt = syzt;
     }
 
     @Override

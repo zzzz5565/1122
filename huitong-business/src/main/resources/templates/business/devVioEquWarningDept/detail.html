@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('明细')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "business/devVioEquWarningDept";
+
+        var yjlx = [[${yjlx}]];
+        var glbm = [[${glbm}]];
+        var yjrq = [[${yjrq}]];
+
+        $(function() {
+            var options = {
+                url: prefix + "/detailList/"+sbbh+"/"+glbm+"/"+yjrq,
+                exportUrl: prefix + "/export",
+                exportZipUrl: prefix + "/exportZip",
+                modalName: "明细",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: 'sbbh',
+                    title: '设备编号'
+                },
+                {
+                    field: 'wfxw',
+                    title: '违法行为'
+                },
+                {
+                    field: 'shuliang',
+                    title: '数量',
+                }]
+            };
+            $.table.init(options);
+        });
+
+    </script>
+</body>
+</html>

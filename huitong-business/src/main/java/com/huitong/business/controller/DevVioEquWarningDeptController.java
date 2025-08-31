@@ -1,13 +1,18 @@
 package com.huitong.business.controller;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import com.huitong.business.domain.DevVioEquWarning;
 import com.huitong.common.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +30,8 @@ import com.huitong.common.utils.DateUtils;
 import com.huitong.common.utils.file.FileUtils;
 import com.huitong.common.config.HuiTongConfig;
 import com.huitong.common.core.page.TableDataInfo;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 设备预警Controller
@@ -98,7 +105,7 @@ public class DevVioEquWarningDeptController extends BaseController {
         } else if ("16".equals(yjlx)) {
             return prefix + "/sjjjDetail";
         } else if ("17".equals(yjlx)) {
-            return prefix + "/zfscsbDetail";
+            return prefix + "/ztycscDetail";
         } else {
             return prefix + "/detail";
         }
@@ -112,13 +119,13 @@ public class DevVioEquWarningDeptController extends BaseController {
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo csycDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo csycDetailList(@RequestBody DevVioEquWarningDept devVioEquWarningDept2, @PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date yjrqDate = sdf.parse(yjrq);
         devVioEquWarningDept.setYjrq(yjrqDate);
-        startPage();
+        startPage(devVioEquWarningDept2.getPageNum(), devVioEquWarningDept2.getPageSize());
         List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectCsycList(devVioEquWarningDept);
         return getDataTable(list);
     }
@@ -131,7 +138,7 @@ public class DevVioEquWarningDeptController extends BaseController {
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo wsjscDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo wsjscDetailList(@RequestBody DevVioEquWarningDept devVioEquWarningDept2, @PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -139,7 +146,7 @@ public class DevVioEquWarningDeptController extends BaseController {
         devVioEquWarningDept.setYjrq(yjrqDate);
 
         devVioEquWarningDept.setYjlx(Integer.valueOf(yjlx));
-        startPage();
+        startPage(devVioEquWarningDept2.getPageNum(), devVioEquWarningDept2.getPageSize());
         List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectWsjscList(devVioEquWarningDept);
         return getDataTable(list);
     }
@@ -152,7 +159,7 @@ public class DevVioEquWarningDeptController extends BaseController {
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo ztycDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo ztycDetailList(@RequestBody DevVioEquWarningDept devVioEquWarningDept2, @PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -167,7 +174,7 @@ public class DevVioEquWarningDeptController extends BaseController {
 
         devVioEquWarningDept.setPreDate(preDate);
         devVioEquWarningDept.setYjlx(Integer.valueOf(yjlx));
-        startPage();
+        startPage(devVioEquWarningDept2.getPageNum(), devVioEquWarningDept2.getPageSize());
         List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectZtycList(devVioEquWarningDept);
         return getDataTable(list);
     }
@@ -180,7 +187,7 @@ public class DevVioEquWarningDeptController extends BaseController {
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo zplycDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo zplycDetailList(@RequestBody DevVioEquWarningDept devVioEquWarningDept2, @PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
         devVioEquWarningDept.setYjlx(Integer.valueOf(yjlx));
@@ -188,7 +195,7 @@ public class DevVioEquWarningDeptController extends BaseController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date yjrqDate = sdf.parse(yjrq);
         devVioEquWarningDept.setYjrq(yjrqDate);
-        startPage();
+        startPage(devVioEquWarningDept2.getPageNum(), devVioEquWarningDept2.getPageSize());
         List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectZplycList(devVioEquWarningDept);
         return getDataTable(list);
     }
@@ -201,7 +208,7 @@ public class DevVioEquWarningDeptController extends BaseController {
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo sjjzDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo sjjzDetailList(@RequestBody DevVioEquWarningDept devVioEquWarningDept2, @PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
 
@@ -226,7 +233,7 @@ public class DevVioEquWarningDeptController extends BaseController {
 
         devVioEquWarningDept.setGlbm(glbm);
         devVioEquWarningDept.setYjlx(Integer.valueOf(yjlx));
-        startPage();
+        startPage(devVioEquWarningDept2.getPageNum(), devVioEquWarningDept2.getPageSize());
         List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectSjjzList(devVioEquWarningDept);
         return getDataTable(list);
     }
@@ -239,7 +246,7 @@ public class DevVioEquWarningDeptController extends BaseController {
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo sjjjDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
+    public TableDataInfo sjjjDetailList(@RequestBody DevVioEquWarningDept devVioEquWarningDept2, @PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq, ModelMap mmap) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
 
@@ -264,7 +271,7 @@ public class DevVioEquWarningDeptController extends BaseController {
 
         devVioEquWarningDept.setGlbm(glbm);
         devVioEquWarningDept.setYjlx(Integer.valueOf(yjlx));
-        startPage();
+        startPage(devVioEquWarningDept2.getPageNum(), devVioEquWarningDept2.getPageSize());
         List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectSjjjList(devVioEquWarningDept);
         return getDataTable(list);
     }
@@ -278,9 +285,216 @@ public class DevVioEquWarningDeptController extends BaseController {
     @ResponseBody
     @Decrypt
     public AjaxResult export(@RequestBody DevVioEquWarningDept devVioEquWarningDept) {
-        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectDevVioEquWarningDeptList(devVioEquWarningDept);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        // 获取前一天日期
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.add(Calendar.DATE, -1);
+        Date preDate = calendar.getTime();
+        devVioEquWarningDept.setYjrq(preDate);
+//        calendar.add(Calendar.DATE, -1);
+        Date endDate = calendar.getTime();
+        devVioEquWarningDept.setEndDate(endDate);
+
+        calendar.add(Calendar.DATE, -9);
+        Date startDate = calendar.getTime();
+        devVioEquWarningDept.setPreDate(startDate);
+
+        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectWarningDeptList(devVioEquWarningDept);
         ExcelUtil<DevVioEquWarningDept> util = new ExcelUtil<DevVioEquWarningDept>(DevVioEquWarningDept.class);
+        // 以下字段不导出
+        util.hideColumn("tjrq","shuliang","wfxw","sbbh","zpl","cszfl","sblx","sbmc","zt","zt2","dsh","bz","pjz","result");
         return util.exportExcel(list, "设备预警数据");
+    }
+
+    /**
+     * 导出设备初审异常
+     */
+    @RequiresPermissions("business:devVioEquWarningDept:export")
+    @Log(title = "导出设备初审异常", businessType = BusinessType.EXPORT)
+    @GetMapping("/exportCsyc")
+    @ResponseBody
+    @Decrypt
+    public void exportCsyc(@RequestParam String glbm, @DateTimeFormat(pattern = "yyyy-MM-dd") Date  yjrq, HttpServletResponse response) throws UnsupportedEncodingException {
+
+        DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
+        devVioEquWarningDept.setGlbm(glbm);
+        devVioEquWarningDept.setYjrq(yjrq);
+
+        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectCsycList(devVioEquWarningDept);
+        String fileName = "设备初审异常_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".xlsx";
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+
+        ExcelUtil<DevVioEquWarningDept> util = new ExcelUtil<>(DevVioEquWarningDept.class);
+        util.hideColumn("shuliang", "wfxw", "wsjsc", "ztyc", "ztycsc", "zplyc", "sjjz", "sjjj", "csyc", "zt", "zt2", "bz", "pjz", "result");
+
+        // 使用若依框架的响应处理方式
+        util.exportExcel(response, list, "设备初审异常");
+    }
+
+    /**
+     * 导出数据激增
+     */
+    @RequiresPermissions("business:devVioEquWarningDept:export")
+    @Log(title = "导出数据激增", businessType = BusinessType.EXPORT)
+    @GetMapping("/exportSjjz")
+    @ResponseBody
+    @Decrypt
+    public void exportSjjz(@RequestParam String glbm, @DateTimeFormat(pattern = "yyyy-MM-dd") Date  yjrq, HttpServletResponse response) throws UnsupportedEncodingException {
+
+        DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
+        devVioEquWarningDept.setGlbm(glbm);
+        devVioEquWarningDept.setYjrq(yjrq);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        // 获取前一天日期
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.add(Calendar.DATE, -1);
+        Date preDate = calendar.getTime();
+        devVioEquWarningDept.setYjrq(preDate);
+//        calendar.add(Calendar.DATE, -1);
+        Date endDate = calendar.getTime();
+        devVioEquWarningDept.setEndDate(endDate);
+
+        calendar.add(Calendar.DATE, -9);
+        Date startDate = calendar.getTime();
+        devVioEquWarningDept.setPreDate(startDate);
+
+        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectSjjzList(devVioEquWarningDept);
+        String fileName = "数据激增_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".xlsx";
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+
+        ExcelUtil<DevVioEquWarningDept> util = new ExcelUtil<>(DevVioEquWarningDept.class);
+        util.hideColumn("tjrq", "zpl", "wfxw", "wsjsc", "ztyc", "ztycsc", "zplyc", "sjjz", "sjjj", "csyc", "zt", "zt2", "cszfl", "sblx", "dsh");
+
+        // 使用若依框架的响应处理方式
+        util.exportExcel(response, list, "数据激增");
+    }
+
+    /**
+     * 导出数据巨减
+     */
+    @RequiresPermissions("business:devVioEquWarningDept:export")
+    @Log(title = "导出数据巨减", businessType = BusinessType.EXPORT)
+    @GetMapping("/exportSjjj")
+    @ResponseBody
+    @Decrypt
+    public void exportSjjj(@RequestParam String glbm, @DateTimeFormat(pattern = "yyyy-MM-dd") Date  yjrq, HttpServletResponse response) throws UnsupportedEncodingException {
+
+        DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
+        devVioEquWarningDept.setGlbm(glbm);
+        devVioEquWarningDept.setYjrq(yjrq);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        // 获取前一天日期
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.add(Calendar.DATE, -1);
+        Date preDate = calendar.getTime();
+        devVioEquWarningDept.setYjrq(preDate);
+//        calendar.add(Calendar.DATE, -1);
+        Date endDate = calendar.getTime();
+        devVioEquWarningDept.setEndDate(endDate);
+
+        calendar.add(Calendar.DATE, -9);
+        Date startDate = calendar.getTime();
+        devVioEquWarningDept.setPreDate(startDate);
+
+        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectSjjjList(devVioEquWarningDept);
+        String fileName = "数据巨减_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".xlsx";
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+
+        ExcelUtil<DevVioEquWarningDept> util = new ExcelUtil<>(DevVioEquWarningDept.class);
+        util.hideColumn("tjrq", "zpl", "wfxw", "wsjsc", "ztyc", "ztycsc", "zplyc", "sjjz", "sjjj", "csyc", "zt", "zt2", "cszfl", "sblx", "dsh");
+
+        // 使用若依框架的响应处理方式
+        util.exportExcel(response, list, "数据巨减");
+    }
+
+    /**
+     * 导出无数据上传
+     */
+    @RequiresPermissions("business:devVioEquWarningDept:export")
+    @Log(title = "导出无数据上传", businessType = BusinessType.EXPORT)
+    @GetMapping("/exportWsjsc")
+    @ResponseBody
+    @Decrypt
+    public void exportWsjsc(@RequestParam String glbm, @DateTimeFormat(pattern = "yyyy-MM-dd") Date  yjrq, HttpServletResponse response) throws UnsupportedEncodingException {
+
+        DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
+        devVioEquWarningDept.setGlbm(glbm);
+        devVioEquWarningDept.setYjrq(yjrq);
+
+        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectWsjscList(devVioEquWarningDept);
+        String fileName = "无数据上传_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".xlsx";
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+
+        ExcelUtil<DevVioEquWarningDept> util = new ExcelUtil<>(DevVioEquWarningDept.class);
+        util.hideColumn("tjrq", "shuliang", "wfxw", "wsjsc", "ztyc", "ztycsc", "zplyc", "sjjz", "sjjj", "csyc", "zt", "zt2", "zpl", "cszfl", "bz", "dsh", "pjz", "result");
+
+        // 使用若依框架的响应处理方式
+        util.exportExcel(response, list, "无数据上传");
+    }
+
+    /**
+     * 导出抓拍量异常
+     */
+    @RequiresPermissions("business:devVioEquWarningDept:export")
+    @Log(title = "导出抓拍量异常", businessType = BusinessType.EXPORT)
+    @GetMapping("/exportZplyc")
+    @ResponseBody
+    @Decrypt
+    public void exportZplyc(@RequestParam String glbm, @DateTimeFormat(pattern = "yyyy-MM-dd") Date  yjrq, HttpServletResponse response) throws UnsupportedEncodingException {
+
+        DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
+        devVioEquWarningDept.setGlbm(glbm);
+        devVioEquWarningDept.setYjrq(yjrq);
+
+        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectZplycList(devVioEquWarningDept);
+        String fileName = "抓拍量异常_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".xlsx";
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+
+        ExcelUtil<DevVioEquWarningDept> util = new ExcelUtil<>(DevVioEquWarningDept.class);
+        util.hideColumn( "tjrq", "wfxw", "wsjsc", "ztyc", "ztycsc", "zplyc", "sjjz", "sjjj", "csyc", "zt", "zt2", "zpl", "cszfl", "bz", "dsh", "pjz", "result");
+
+        // 使用若依框架的响应处理方式
+        util.exportExcel(response, list, "抓拍量异常");
+    }
+
+    /**
+     * 导出状态异常
+     */
+    @RequiresPermissions("business:devVioEquWarningDept:export")
+    @Log(title = "导出状态异常", businessType = BusinessType.EXPORT)
+    @GetMapping("/exportZtyc")
+    @ResponseBody
+    @Decrypt
+    public void exportZtyc(@RequestParam String glbm, @DateTimeFormat(pattern = "yyyy-MM-dd") Date  yjrq, HttpServletResponse response) throws UnsupportedEncodingException {
+
+        DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
+        devVioEquWarningDept.setGlbm(glbm);
+        devVioEquWarningDept.setYjrq(yjrq);
+
+        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectZtycList(devVioEquWarningDept);
+        String fileName = "状态异常_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".xlsx";
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+
+        ExcelUtil<DevVioEquWarningDept> util = new ExcelUtil<>(DevVioEquWarningDept.class);
+        util.hideColumn( "tjrq", "wfxw", "wsjsc", "ztyc", "ztycsc", "zplyc", "sjjz", "sjjj", "csyc", "shuliang", "zpl", "cszfl", "bz", "dsh", "pjz", "result");
+
+        // 使用若依框架的响应处理方式
+        util.exportExcel(response, list, "状态异常");
     }
 
     /**
@@ -375,11 +589,11 @@ public class DevVioEquWarningDeptController extends BaseController {
      * 违法还在上传
      */
     @RequiresPermissions("business:devVioEquWarningDept:list")
-    @PostMapping("/zfscsbDetailList/{yjlx}/{glbm}/{yjrq}")
+    @PostMapping("/ztycscDetailList/{yjlx}/{glbm}/{yjrq}")
     @ResponseBody
     @Decrypt
     @Encrypt
-    public TableDataInfo zfscsbDetailList(@PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq) throws ParseException {
+    public TableDataInfo ztycscDetailList(@RequestBody DevVioEquWarningDept devVioEquWarningDept2, @PathVariable("yjlx") String yjlx, @PathVariable("glbm") String glbm, @PathVariable("yjrq") String yjrq) throws ParseException {
         DevVioEquWarningDept devVioEquWarningDept = new DevVioEquWarningDept();
         devVioEquWarningDept.setGlbm(glbm);
 
@@ -388,8 +602,8 @@ public class DevVioEquWarningDeptController extends BaseController {
         Date yjrqDate = sdf.parse(yjrq);
         devVioEquWarningDept.setYjrq(yjrqDate);
 
-        startPage();
-        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectZfscsbList(devVioEquWarningDept);
+        startPage(devVioEquWarningDept2.getPageNum(), devVioEquWarningDept2.getPageSize());
+        List<DevVioEquWarningDept> list = devVioEquWarningDeptService.selectZtycscList(devVioEquWarningDept);
         return getDataTable(list);
     }
 }

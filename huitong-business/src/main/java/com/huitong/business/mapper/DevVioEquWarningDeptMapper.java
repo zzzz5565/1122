@@ -47,7 +47,7 @@ public interface DevVioEquWarningDeptMapper
     // 数据巨减
     public List<DevVioEquWarningDept> selectSjjjList(DevVioEquWarningDept devVioEquWarningDept);
 
-    public List<DevVioEquWarningDept> selectZfscsbList(DevVioEquWarningDept devVioEquWarningDept);
+    public List<DevVioEquWarningDept> selectZtycscList(DevVioEquWarningDept devVioEquWarningDept);
 
 
     /**

@@ -22,6 +22,9 @@ public class EvidenceEquRecord extends BaseEntity
     @Excel(name = "大队编号")
     private String glbm;
 
+    @Excel(name="部门编号")
+    private String bmbm;
+
     /** 大队名称 */
     @Excel(name = "大队名称")
     private String bmmc;
@@ -144,6 +147,14 @@ public class EvidenceEquRecord extends BaseEntity
     {
         return qtztsl;
     }
+    public String getBmbm() {
+        return bmbm;
+    }
+
+    public void setBmbm(String bmbm) {
+        this.bmbm = bmbm;
+    }
+
 
     @Override
     public String toString() {

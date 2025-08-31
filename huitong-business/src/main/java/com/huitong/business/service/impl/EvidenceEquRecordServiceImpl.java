@@ -1,6 +1,10 @@
 package com.huitong.business.service.impl;
 
 import java.util.List;
+
+import com.huitong.business.domain.DevVioEquipment;
+import com.huitong.common.config.datasource.DynamicDataSourceContextHolder;
+import com.huitong.common.enums.DataSourceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.huitong.business.mapper.EvidenceEquRecordMapper;
@@ -96,5 +100,23 @@ public class EvidenceEquRecordServiceImpl implements IEvidenceEquRecordService
     public int deleteEvidenceEquRecordById(Long id)
     {
         return evidenceEquRecordMapper.deleteEvidenceEquRecordById(id);
+    }
+
+    @Override
+    public List<DevVioEquipment> selectDetailList(String ztlx, String bmbm) {
+        return evidenceEquRecordMapper.selectDetailList(ztlx, bmbm);
+    }
+
+    @Override
+    public List<DevVioEquipment> selectTempDetailList(String bmbm) {
+        return evidenceEquRecordMapper.selectTempDetailList(bmbm);
+    }
+    @Override
+    public List<DevVioEquipment> selectDetailListForBA(String bmbm) {
+        return evidenceEquRecordMapper.selectDetailListForBA(bmbm);
+    }
+    @Override
+    public long countDetailListForBA(String bmbm) {
+        return evidenceEquRecordMapper.countDetailListForBA(bmbm);
     }
 }

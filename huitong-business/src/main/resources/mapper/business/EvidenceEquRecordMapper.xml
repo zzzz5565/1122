@@ -5,6 +5,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.huitong.business.mapper.EvidenceEquRecordMapper">
 
     <resultMap type="EvidenceEquRecord" id="EvidenceEquRecordResult">
+        <id     property="bmbm"    column="glbm"    />
         <result property="id"    column="id"    />
         <result property="glbm"    column="glbm"    />
         <result property="bmmc"    column="bmmc"    />
@@ -14,6 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="tysl"    column="tysl"    />
         <result property="xzdspsl"    column="xzdspsl"    />
         <result property="ztzcsbspzsl"    column="ztzcsbspzsl"    />
+        <result property="qtztsl"    column="qtztsl"    />
         <result property="qtztsl"    column="qtztsl"    />
     </resultMap>
 
@@ -82,64 +84,170 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--        FROM dep_info d-->
 <!--        LEFT JOIN equipment_stats e ON d.GM = e.QH-->
 <!--        LEFT JOIN temp_stats t ON d.GM = t.QH-->
-<!--       <where>-->
+<!--        <where>-->
 <!--            <if test="glbm != null  and glbm != ''"> AND SUBSTR(d.GM, 0, 6) = #{glbm}</if>-->
 <!--            <if test="bmmc != null  and bmmc != ''"> AND d.MC like '%' || #{bmmc} || '%'</if>-->
 <!--        </where>-->
 <!--    </select>-->
 
-    <select id="selectEvidenceEquRecordLists" parameterType="EvidenceEquRecord" resultMap="EvidenceEquRecordResult">
+    <select id="selectEvidenceEquRecordLists" parameterType="com.huitong.business.domain.EvidenceEquRecord" resultMap="EvidenceEquRecordResult">
         SELECT
-        d.GM AS glbm,
-        d.MC AS bmmc,
-        IFNULL(e.total_cnt, 0) + IFNULL(t.temp_cnt, 0) AS basl,
-        IFNULL(e.enable_cnt, 0) AS qysl,
-        IFNULL(e.invalid_cnt, 0) AS zfsl,
-        IFNULL(e.disable_cnt, 0) AS tysl,
+        d.bmbm AS glbm,
+        d.bmmc AS bmmc,
+
+        (IFNULL(e.total_cnt, 0) + IFNULL(t.temp_cnt, 0)) AS basl,
+
+        IFNULL(e.qysl, 0) AS qysl,
+
+        IFNULL(e.zfsl, 0) AS zfsl,
+
+        IFNULL(e.tysl, 0) AS tysl,
+
+
         IFNULL(t.temp_cnt, 0) AS xzdspsl,
-        IFNULL(e.status1_cnt, 0) - IFNULL(e.enable_cnt, 0) AS ztzcsbspzsl,
-        IFNULL(e.other_cnt, 0) AS qtztsl
+
+
+        5 AS ztzcsbspzsl,
+        IFNULL(e.qtztsl, 0) AS qtztsl
         FROM
-        (
-        SELECT
-        SUBSTR(glbm, 1, 6) AS GM,
-        MAX(bmmc) AS MC
-        FROM fre_dep
-        GROUP BY SUBSTR(glbm, 1, 6)
-        ) d
+        fre_dep d
         LEFT JOIN
-        (
-        SELECT
-        SUBSTR(glbm, 1, 6) AS QH,
-        COUNT(CASE WHEN zt = '1' AND syzt IN ('1','2') AND shyj LIKE '%通过%' AND (spyj LIKE '%同意%' OR spr IS NOT NULL) THEN 1 END) AS enable_cnt,
-        COUNT(CASE WHEN zt = '3' THEN 1 END) AS invalid_cnt,
-        COUNT(CASE WHEN zt = '2' THEN 1 END) AS disable_cnt,
-        COUNT(CASE WHEN zt = '1' THEN 1 END) AS status1_cnt,
-        COUNT(CASE WHEN zt NOT IN ('1','2','3') THEN 1 END) AS other_cnt,
-        COUNT(1) AS total_cnt
-        FROM dev_vio_equipment
-        WHERE glbm LIKE '3706%'
-        GROUP BY SUBSTR(glbm, 1, 6)
-        ) e ON d.GM = e.QH
+        (SELECT
+        glbm,
+        COUNT(1) AS total_cnt,
+        SUM(CASE WHEN zt = '1' THEN 1 ELSE 0 END) AS qysl,
+        SUM(CASE WHEN zt = '2' THEN 1 ELSE 0 END) AS tysl,
+        SUM(CASE WHEN zt = '3' THEN 1 ELSE 0 END) AS zfsl,
+        SUM(CASE WHEN zt NOT IN ('1', '2', '3') THEN 1 ELSE 0 END) AS qtztsl
+        FROM
+        dev_vio_equipment
+        GROUP BY
+        glbm
+        ) e ON d.bmbm = e.glbm
         LEFT JOIN
-        (
-        SELECT
-        SUBSTR(glbm, 1, 6) AS QH,
+        (SELECT
+        glbm,
         COUNT(1) AS temp_cnt
-        FROM dev_vio_equipment_temp
-        WHERE glbm LIKE '3706%'
-        GROUP BY SUBSTR(glbm, 1, 6)
-        ) t ON d.GM = t.QH
+        FROM
+        dev_vio_equipment_temp
+        GROUP BY
+        glbm
+        ) t ON d.bmbm = t.glbm
         <where>
-            <if test="glbm != null  and glbm != ''"> AND d.GM = #{glbm}</if>
-            <if test="bmmc != null  and bmmc != ''"> AND d.MC like CONCAT('%', #{bmmc}, '%')</if>
+            <if test="glbm != null and glbm != ''">
+                AND d.bmbm = #{glbm}
+            </if>
+            <if test="bmmc != null and bmmc != ''">
+                AND d.bmmc LIKE CONCAT('%', #{bmmc}, '%')
+            </if>
+        </where>
+        GROUP BY d.bmbm, d.bmmc
+    </select>
+
+
+    <select id="selectDetailList" resultType="com.huitong.business.domain.DevVioEquipment">
+        SELECT
+        d.bmmc,
+        e.sbbh,
+        e.sbmc,
+        e.sblx,
+        e.zt
+        FROM
+        dev_vio_equipment e
+        LEFT JOIN
+        fre_dep d ON substr(e.glbm,1,6) = d.bmbm
+        <where>
+            e.glbm = #{bmbm}
+            <choose>
+                <when test="ztlx == 'QY'">
+                    AND e.zt = '1'
+                    AND e.syzt IN ('1','2')
+                    AND e.shyj LIKE '%通过%'
+                    AND (e.spyj LIKE '%同意%' OR e.spr IS NOT NULL)
+                </when>
+
+                <when test="ztlx == 'TY'">
+                    AND e.zt = '2'
+                </when>
+                <when test="ztlx == 'ZF'">
+                    AND e.zt = '3'
+                </when>
+                <when test="ztlx == 'ZCSZ'">
+                    AND e.zt = '1'
+                    AND NOT (
+                    e.syzt IN ('1','2')
+                    AND e.shyj LIKE '%通过%'
+                    AND (e.spyj LIKE '%同意%' OR e.spr IS NOT NULL)
+                    )
+                </when>
+
+                <when test="ztlx == 'QT'">
+                    AND e.zt NOT IN ('1', '2', '3')
+                </when>
+            </choose>
         </where>
     </select>
 
-    <select id="selectEvidenceEquRecordById" parameterType="Long" resultMap="EvidenceEquRecordResult">
-        <include refid="selectEvidenceEquRecordVo"/>
-        where id = #{id}
+    <!--
+      查询详情列表（Temp表），用于“新增待审批”
+    -->
+    <select id="selectTempDetailList" resultType="com.huitong.business.domain.DevVioEquipment">
+        SELECT
+            d.bmmc,
+            t.sbbh,
+            t.sbmc,
+            t.sblx,
+            '4' AS zt
+        FROM
+            dev_vio_equipment_temp t
+                LEFT JOIN
+            fre_dep d ON substr(t.glbm,1,6) = d.bmbm
+        WHERE
+            t.glbm = #{bmbm}
     </select>
+
+    <!--
+      查询“备案”详情（合并主表和临时表）
+    -->
+    <select id="selectDetailListForBA" resultType="com.huitong.business.domain.DevVioEquipment">
+        SELECT bmmc, sbbh, sbmc, sblx, zt FROM (
+                                                   SELECT
+                                                       d.bmmc, e.sbbh, e.sbmc, e.sblx, e.zt
+                                                   FROM
+                                                       dev_vio_equipment e
+                                                           LEFT JOIN
+                                                       fre_dep d ON substr(e.glbm,1,6) = d.bmbm
+                                                   WHERE
+                                                       e.glbm = #{bmbm}
+
+                                                   UNION ALL
+
+                                                   SELECT
+                                                       d.bmmc,
+                                                       t.sbbh,
+                                                       t.sbmc,
+                                                       t.sblx,
+                                                       '4' AS zt
+                                                   FROM
+                                                       dev_vio_equipment_temp t
+                                                           LEFT JOIN
+                                                       fre_dep d ON substr(t.glbm,1,6) = d.bmbm
+                                                   WHERE
+                                                       t.glbm = #{bmbm}
+                                               ) AS combined_result
+    </select>
+
+    <!--
+      为“备案”详情提供准确的总数统计
+    -->
+    <select id="countDetailListForBA" resultType="long">
+        SELECT COUNT(1) FROM (
+                                 SELECT 1 FROM dev_vio_equipment WHERE glbm = #{bmbm}
+                                 UNION ALL
+                                 SELECT 1 FROM dev_vio_equipment_temp WHERE glbm = #{bmbm}
+                             ) AS t
+    </select>
+    
 
     <insert id="insertEvidenceEquRecord" parameterType="EvidenceEquRecord" useGeneratedKeys="true" keyProperty="id">
         insert into evidence_equ_record

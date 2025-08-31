@@ -71,11 +71,11 @@
 <!--&lt;!&ndash;                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="business:devVioEquipment:remove">&ndash;&gt;-->
 <!--&lt;!&ndash;                    <i class="fa fa-remove"></i> 删除&ndash;&gt;-->
 <!--&lt;!&ndash;                </a>&ndash;&gt;-->
-<!--                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="business:devVioEquipment:export">-->
-<!--                    <i class="fa fa-download"></i> 导出Excel-->
+<!--                <a class="btn new_btn_daoChu" onclick="$.table.exportExcel()" shiro:hasPermission="business:devVioEquipment:export">-->
+<!--                    导出Excel-->
 <!--                </a>-->
-<!--&lt;!&ndash;                <a class="btn btn-warning" onclick="$.table.exportZip()" shiro:hasPermission="business:devVioEquipment:export">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <i class="fa fa-download"></i> 导出Zip&ndash;&gt;-->
+<!--&lt;!&ndash;                <a class="btn new_btn_daoChu" onclick="$.table.exportZip()" shiro:hasPermission="business:devVioEquipment:export">&ndash;&gt;-->
+<!--&lt;!&ndash;                    导出Zip&ndash;&gt;-->
 <!--&lt;!&ndash;                </a>&ndash;&gt;-->
 <!--            </div>-->
             <div class="col-sm-12 select-table table-striped">
@@ -91,11 +91,11 @@
         var prefix = ctx + "business/devVioEquipment";
 
         var sbbh = [[${sbbh}]];
-        var sblx = [[${sblx}]];
+        var yjrq = [[${yjrq}]];
 
         $(function() {
             var options = {
-                url: prefix + "/xqList/"+sbbh,
+                url: prefix + "/xqList/"+sbbh+'/'+yjrq,
                 exportUrl: prefix + "/export",
                 exportZipUrl: prefix + "/exportZip",
                 modalName: "异常明细",
@@ -118,6 +118,10 @@
                 {
                     field: 'shuliang',
                     title: '数量',
+                    align: 'center',
+                    formatter: function(value) {
+                        return parseInt(value);
+                    }
                 }]
             };
             $.table.init(options);

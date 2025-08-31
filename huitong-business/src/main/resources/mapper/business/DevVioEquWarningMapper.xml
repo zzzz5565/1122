@@ -49,8 +49,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectDevVioEquWarningLists" parameterType="DevVioEquWarning" resultMap="DevVioEquWarningResult">
-        select t.sbbh, t.wfxw, count(*) shuliang from dev_vio_equ_warning t
+        select t.sbbh, t.wfxw, sum(shuliang) shuliang from dev_vio_equ_warning t
         where t.sbbh = #{sbbh}
+        and t.yjrq = #{yjrq}
+        and t.yjlx = '1'
         group by t.sbbh, t.wfxw
         order by shuliang desc
     </select>

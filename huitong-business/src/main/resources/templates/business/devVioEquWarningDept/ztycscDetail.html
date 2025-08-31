@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('状态异常上传详情')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="col-sm-12 select-table table-striped">
+        <table id="bootstrap-table"></table>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    // 从Controller的getDetail方法中获取 yjlx, glbm, yjrq
+    var yjlx = /*[[${yjlx}]]*/ 'ztycsc';
+    var glbm = /*[[${glbm}]]*/ '';
+    var yjrq = /*[[${yjrq}]]*/ '';
+    var prefix = ctx + "business/devVioEquWarningDept";
+
+    $(function () {
+        var options = {
+            // 通过 AJAX 请求数据
+            url: prefix + "/ztycscDetailList/" + yjlx + "/" + glbm + "/" + yjrq,
+            modalName: "详情列表",
+            columns: [
+                {
+                    field: 'glbm',
+                    title: '管理部门'
+                },
+                {
+                    field: 'sbbh',
+                    title: '设备编号'
+                },
+                {
+                    field: 'sbmc',
+                    title: '设备名称'
+                },
+                {
+                    field: 'zt',
+                    title: '状态'
+                },
+                {
+                    field: 'syzt',
+                    title: '试用状态'
+                },
+                {
+                    field: 'shuliang',
+                    title: '数量',
+                    align: 'center'
+                }
+            ]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

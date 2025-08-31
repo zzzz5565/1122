@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="DevVioEquWarningDept" id="DevVioEquWarningDeptResult">
         <result property="id"    column="id"    />
         <result property="yjrq"    column="yjrq"    />
+        <result property="tjrq"    column="tjrq"    />
         <result property="glbm"    column="glbm"    />
         <result property="sbbh"    column="sbbh"    />
         <result property="sblx"    column="sblx"    />
@@ -32,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="endDate"    column="endDate"    />
         <result property="pjz"    column="pjz"    />
         <result property="result"    column="result"    />
-        <result property="zfscsb"   column="zfscsb"   />
+        <result property="ztycsc"   column="ztycsc"   />
         <result property="dsh"    column="dsh"    />
         <result property="wfsj" column="wfsj"/>
         <result property="ztycsc" column="ztycsc"/>
@@ -67,40 +68,52 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectWarningDeptList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
         select a.yjrq, a.glbm,sum(wsjsc) wsjsc, sum(ztyc) ztyc, sum(zplyc) zplyc, sum(sjjz) sjjz, sum(sjjj) sjjj, sum(csyc) csyc,sum(ztycsc) ztycsc from (
-        select yjrq, glbm,count(*) wsjsc,0 ztyc,0 zplyc, 0 sjjz, 0 sjjj, 0 csyc, 0 ztycsc from dev_vio_equ_warning t
+        select t.yjrq, t.glbm,count(*) wsjsc,0 ztyc,0 zplyc, 0 sjjz, 0 sjjj, 0 csyc, 0 ztycsc from dev_vio_equ_warning t
+        left join dev_vio_equipment e on t.sbbh = e.sbbh
         where t.yjlx = '2'
+        and e.sbmc not like '%警务通%'
+        and e.sblx != '6'
+        and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
             AND yjrq &gt;= #{params.beginTime}
         </if>
         <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
             AND yjrq &lt;= #{params.endTime}
         </if>
-        group by yjrq, glbm
+        group by yjrq, t.glbm
 
         union ALL
 
-        select yjrq, glbm,0 wsjsc,count(*) ztyc,0 zplyc, 0 sjjz, 0 sjjj, 0 csyc, 0 ztycsc from dev_vio_equ_warning t
+        select yjrq, t.glbm,0 wsjsc,count(*) ztyc,0 zplyc, 0 sjjz, 0 sjjj, 0 csyc, 0 ztycsc from dev_vio_equ_warning t
+        left join dev_vio_equipment e on t.sbbh = e.sbbh
         where t.yjlx = '7'
+        and e.sbmc not like '%警务通%'
+        and e.sblx != '6'
+        and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
             AND yjrq &gt;= #{params.beginTime}
         </if>
         <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
             AND yjrq &lt;= #{params.endTime}
         </if>
-        group by yjrq, glbm
+        group by yjrq, t.glbm
 
         union ALL
 
-        select yjrq, glbm,0 wsjsc,0 ztyc,count(*) zplyc, 0 sjjz, 0 sjjj, 0 csyc, 0 ztycsc from (
-        select yjrq, glbm,0 wsjsc,0 ztyc,count(*) zplyc, 0 sjjz, 0 sjjj, 0 csyc from dev_vio_equ_warning t
+        select yjrq, a.glbm,0 wsjsc,0 ztyc,count(*) zplyc, 0 sjjz, 0 sjjj, 0 csyc, 0 ztycsc from (
+        select yjrq, t.glbm,0 wsjsc,0 ztyc,count(*) zplyc, 0 sjjz, 0 sjjj, 0 csyc from dev_vio_equ_warning t
+        left join dev_vio_equipment e on t.sbbh = e.sbbh
         where t.yjlx = '1'
+        and e.sbmc not like '%警务通%'
+        and e.sblx != '6'
+        and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
             AND yjrq &gt;= #{params.beginTime}
         </if>
         <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
             AND yjrq &lt;= #{params.endTime}
         </if>
-        group by yjrq, glbm, sbbh
+        group by yjrq, t.glbm, t.sbbh
         ) a
         group by a.yjrq, a.glbm
 
@@ -135,13 +148,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM
         (
         SELECT
-        sbbh,
-        glbm,
-        yjrq,
+        t.sbbh,
+        t.glbm,
+        t.yjrq,
         SUM(shuliang) AS total_shuliang
-        FROM dev_vio_equ_warning
-        WHERE yjlx = 1
-        GROUP BY sbbh, glbm, yjrq
+        FROM dev_vio_equ_warning t
+        left join dev_vio_equipment e on t.sbbh = e.sbbh
+        where t.yjlx = '1'
+        and e.sbmc not like '%警务通%'
+        and e.sblx != '6'
+        and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
+        GROUP BY t.sbbh, t.glbm, t.yjrq
         ) AS daily_aggregated_data
         WHERE
         yjrq = #{yjrq}
@@ -170,13 +187,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM
         (
         SELECT
-        sbbh,
-        glbm,
-        yjrq,
+        t.sbbh,
+        t.glbm,
+        t.yjrq,
         SUM(shuliang) AS total_shuliang
-        FROM dev_vio_equ_warning
-        WHERE yjlx = 1
-        GROUP BY sbbh, glbm, yjrq
+        FROM dev_vio_equ_warning t
+        left join dev_vio_equipment e on t.sbbh = e.sbbh
+        where t.yjlx = '1'
+        and e.sbmc not like '%警务通%'
+        and e.sblx != '6'
+        and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
+        GROUP BY t.sbbh, t.glbm, t.yjrq
         ) AS t
         WHERE total_shuliang > 0
         AND yjrq &gt;= #{preDate}
@@ -221,13 +242,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM
         (
         SELECT
-        sbbh,
-        glbm,
-        yjrq,
+        t.sbbh,
+        t.glbm,
+        t.yjrq,
         SUM(shuliang) AS total_shuliang
-        FROM dev_vio_equ_warning
-        WHERE yjlx = 1
-        GROUP BY sbbh, glbm, yjrq
+        FROM dev_vio_equ_warning t
+        left join dev_vio_equipment e on t.sbbh = e.sbbh
+        where t.yjlx = '1'
+        and e.sbmc not like '%警务通%'
+        and e.sblx != '6'
+        and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
+        GROUP BY t.sbbh, t.glbm, t.yjrq
         ) AS daily_aggregated_data
         WHERE
         yjrq = #{yjrq}
@@ -256,13 +281,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM
         (
         SELECT
-        sbbh,
-        glbm,
-        yjrq,
+        t.sbbh,
+        t.glbm,
+        t.yjrq,
         SUM(shuliang) AS total_shuliang
-        FROM dev_vio_equ_warning
-        WHERE yjlx = 1
-        GROUP BY sbbh, glbm, yjrq
+        FROM dev_vio_equ_warning t
+        left join dev_vio_equipment e on t.sbbh = e.sbbh
+        where t.yjlx = '1'
+        and e.sbmc not like '%警务通%'
+        and e.sblx != '6'
+        and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
+        GROUP BY t.sbbh, t.glbm, t.yjrq
         ) AS t
         WHERE total_shuliang > 0
         AND yjrq &gt;= #{preDate}
@@ -282,6 +311,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         (select t.yjrq, t.bmbm, d.bmmc, t.sbbh, ifnull((sum(cszfl)/(ifnull(t.zpl, 0) - ifnull(t.syl, 0))),0) zfl from dev_in_uses t
         left join fre_dep d on substr(t.bmbm,1,6) = d.bmbm
         where zpl >= 10
+        and t.sbmc not like '%警务通%' and t.sblx != '6' and substr(t.bmbm,1,6) not in ('370699','370698','370697','30600')
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
             AND yjrq &gt;= #{params.beginTime}
         </if>
@@ -289,20 +319,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             AND yjrq &lt;= #{params.endTime}
         </if>
         group by t.sbbh ) b
-        where b.zfl >= '0.2'
+        where b.zfl >= '0.8'
         group by b.bmbm
 
         union all
 
-        select t.yjrq, t.glbm, 0 wsjsc,0 ztyc,0 zplyc, 0 sjjz, 0 sjjj, 0 csyc, count(*) ztycsc from vio_surveil t
-        where 1=1
+        select b.yjrq, b.glbm, 0 wsjsc,0 ztyc,0 zplyc, 0 sjjz, 0 sjjj, 0 csyc, count(*) ztycsc from (
+        select t.yjrq, t.glbm, t.sbbh, count(*) c from vio_surveil t
+        where t.sbmc not like '%警务通%' and substr(t.sbbh,1,6) not in ('370699','370698','370697','30600')
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
             AND yjrq &gt;= #{params.beginTime}
         </if>
         <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
             AND yjrq &lt;= #{params.endTime}
         </if>
-        group by t.yjrq, t.glbm
+        group by t.sbbh) b
+        group by b.yjrq, b.glbm
         ) a
     <where>
         <if test="glbm != null  and glbm != ''"> and a.glbm = #{glbm} and glbm not like '%一大队%' and glbm not like '%二大队%' and glbm not like '%三大队%'</if>
@@ -335,21 +367,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <!--    初审异常-->
     <select id="selectCsycList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
-        select *, (a.dcsl+a.lsdcsl) dsh from (select t.yjrq,
+        select *, (a.dcsl+a.lsdcsl) dsh from (select t.yjrq, t.tjrq,
                               t.glbm,
                               t.sbbh,
                               t.sbmc,
                               t.sblx,
-                              t.zpl,
+                              (ifnull(t.zpl, 0) - ifnull(t.syl, 0)) zpl,
                               t.cszfl,
                               t.dcsl,
                               t.lsdcsl,
                               round((ifnull(t.cszfl, 0) / (ifnull(t.zpl, 0) - ifnull(t.syl, 0))) * 100, 2) zfl
                        from dev_in_uses t
                        where t.yjrq = #{yjrq}
+                         and t.sbmc not like '%警务通%' and t.sblx != '6' and substr(t.bmbm,1,6) not in ('370699','370698','370697','30600')
                          and t.glbm like concat('%', #{glbm}, '%')
                          and t.zpl >= 10) a
-        where a.zfl >= 20
+        where a.zfl >= 80
+        order by zpl desc
     </select>
 
 <!--    无数据上传-->
@@ -357,8 +391,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select t.yjrq, t.glbm, t.sbbh, d.sblx, d.sbmc from dev_vio_equ_warning t
         left join dev_vio_equipment d on t.sbbh = d.sbbh
         where t.yjlx = '2'
+          and d.sbmc not like '%警务通%'
+          and d.sblx != '6'
+          and substr(d.glbm,1,6) not in ('370699','370698','370697','370600')
           and t.yjrq = #{yjrq}
-          and t.glbm = #{glbm}
+          and t.glbm like concat('%', #{glbm}, '%')
     </select>
 
 <!--    状态异常-->
@@ -367,9 +404,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join dev_vio_equipment d on t.sbbh = d.sbbh
         left join (select zt,sbbh from dev_vio_equipment_daily where daily = #{preDate}) e on t.sbbh = e.sbbh
         where t.yjlx = '7'
+          and d.sbmc not like '%警务通%'
+          and d.sblx != '6'
+          and substr(d.glbm,1,6) not in ('370699','370698','370697','370600')
           and d.zt != e.zt
           and t.yjrq = #{yjrq}
-          and t.glbm = #{glbm}
+          and t.glbm like concat('%', #{glbm}, '%')
     </select>
 
 <!--    抓拍量异常-->
@@ -377,6 +417,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select t.yjrq, t.glbm, t.sbbh, d.sbmc, d.sblx, sum(shuliang) shuliang from dev_vio_equ_warning t
         left join dev_vio_equipment d on t.sbbh = d.sbbh
         where t.yjlx = '1'
+          and d.sbmc not like '%警务通%'
+          and d.sblx != '6'
+          and substr(d.glbm,1,6) not in ('370699','370698','370697','370600')
         and t.yjrq = #{yjrq}
         and t.glbm like concat('%', #{glbm}, '%')
         group by t.yjrq, t.glbm ,t.sbbh
@@ -414,13 +457,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                   FROM
                       (
                           SELECT
-                              sbbh,
-                              glbm,
-                              yjrq,
+                              t.sbbh,
+                              t.glbm,
+                              t.yjrq,
                               SUM(shuliang) AS total_shuliang
-                          FROM dev_vio_equ_warning
-                          WHERE yjlx = 1
-                          GROUP BY sbbh, glbm, yjrq
+                          FROM dev_vio_equ_warning t
+                                   left join dev_vio_equipment e on t.sbbh = e.sbbh
+                          where t.yjlx = '1'
+                            and e.sbmc not like '%警务通%'
+                            and e.sblx != '6'
+                            and e.sblx != '6'
+                            and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
+                          GROUP BY t.sbbh, t.glbm, t.yjrq
                       ) AS daily_aggregated_data
                   WHERE
                       yjrq = #{yjrq}
@@ -449,13 +497,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                           FROM
                               (
                                   SELECT
-                                      sbbh,
-                                      glbm,
-                                      yjrq,
+                                      t.sbbh,
+                                      t.glbm,
+                                      t.yjrq,
                                       SUM(shuliang) AS total_shuliang
-                                  FROM dev_vio_equ_warning
-                                  WHERE yjlx = 1
-                                  GROUP BY sbbh, glbm, yjrq
+                                  FROM dev_vio_equ_warning t
+                                           left join dev_vio_equipment e on t.sbbh = e.sbbh
+                                  where t.yjlx = '1'
+                                    and e.sbmc not like '%警务通%'
+                                    and e.sblx != '6'
+                                    and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
+                                  GROUP BY t.sbbh, t.glbm, t.yjrq
                               ) AS t
                           WHERE total_shuliang > 0
                             AND yjrq &gt;= #{preDate}
@@ -501,13 +553,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                   FROM
                       (
                           SELECT
-                              sbbh,
-                              glbm,
-                              yjrq,
+                              t.sbbh,
+                              t.glbm,
+                              t.yjrq,
                               SUM(shuliang) AS total_shuliang
-                          FROM dev_vio_equ_warning
-                          WHERE yjlx = 1
-                          GROUP BY sbbh, glbm, yjrq
+                          FROM dev_vio_equ_warning t
+                                   left join dev_vio_equipment e on t.sbbh = e.sbbh
+                          where t.yjlx = '1'
+                            and e.sbmc not like '%警务通%'
+                            and e.sblx != '6'
+                            and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
+                          GROUP BY t.sbbh, t.glbm, t.yjrq
                       ) AS daily_aggregated_data
                   WHERE
                       yjrq = #{yjrq}
@@ -536,13 +592,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                           FROM
                               (
                                   SELECT
-                                      sbbh,
-                                      glbm,
-                                      yjrq,
+                                      t.sbbh,
+                                      t.glbm,
+                                      t.yjrq,
                                       SUM(shuliang) AS total_shuliang
-                                  FROM dev_vio_equ_warning
-                                  WHERE yjlx = 1
-                                  GROUP BY sbbh, glbm, yjrq
+                                  FROM dev_vio_equ_warning t
+                                           left join dev_vio_equipment e on t.sbbh = e.sbbh
+                                  where t.yjlx = '1'
+                                    and e.sbmc not like '%警务通%'
+                                    and e.sblx != '6'
+                                    and substr(e.glbm,1,6) not in ('370699','370698','370697','370600')
+                                  GROUP BY t.sbbh, t.glbm, t.yjrq
                               ) AS t
                           WHERE total_shuliang > 0
                             AND yjrq &gt;= #{preDate}
@@ -558,10 +618,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!--    状态异常上传-->
-    <select id="selectZfscsbList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
-        select t.yjrq, t.glbm, t.sbbh, t.sbmc, t.wfsj, t.wfxw, case when zt = 1 then '正常' when zt = 2 then '停用' when zt = 3 then '作废' end zt,
-               case when syzt = 1 then '试用结束' when syzt = 2 then '试用中' end syzt from vio_surveil t
-        where t.glbm like concat('%', #{glbm}, '%')
+    <select id="selectZtycscList" parameterType="DevVioEquWarningDept" resultMap="DevVioEquWarningDeptResult">
+        select t.yjrq, t.glbm, t.sbbh, t.sbmc, case when zt = 1 then '正常' when zt = 2 then '停用' when zt = 3 then '作废' end zt,
+               case when syzt = 1 then '试用结束' when syzt = 2 then '试用中' end syzt, count(*) shuliang from vio_surveil t
+        where t.glbm like concat('%', #{glbm}, '%') and t.yjrq = #{yjrq}
+        and t.sbmc not like '%警务通%' and substr(t.sbbh,1,6) not in ('370699','370698','370697','30600')
+        group by sbbh order by shuliang desc
     </select>
 
     <select id="selectDevVioEquWarningDeptById" parameterType="Long" resultMap="DevVioEquWarningDeptResult">

@@ -1,8 +1,11 @@
 package com.huitong.business.controller;
 
 import java.util.List;
+
+import com.huitong.business.domain.DevVioEquipment;
 import com.huitong.common.annotation.*;
 import com.huitong.common.config.datasource.DynamicDataSourceContextHolder;
+import com.huitong.common.core.page.PageDomain;
 import com.huitong.common.enums.DataSourceType;
 import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -21,6 +24,8 @@ import com.huitong.common.utils.DateUtils;
 import com.huitong.common.utils.file.FileUtils;
 import com.huitong.common.config.HuiTongConfig;
 import com.huitong.common.core.page.TableDataInfo;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 执法取证设备备案统计Controller
@@ -55,7 +60,7 @@ public class EvidenceEquRecordController extends BaseController
     public TableDataInfo list(@RequestBody EvidenceEquRecord evidenceEquRecord)
     {
         DynamicDataSourceContextHolder.setDataSourceType(DataSourceType.SLAVE.name());
-//        startPage(evidenceEquRecord.getPageNum(),evidenceEquRecord.getPageSize());
+        startPage(evidenceEquRecord.getPageNum(),evidenceEquRecord.getPageSize());
         List<EvidenceEquRecord> list = evidenceEquRecordService.selectEvidenceEquRecordLists(evidenceEquRecord);
         DynamicDataSourceContextHolder.clearDataSourceType();
         return getDataTable(list);
@@ -77,6 +82,50 @@ public class EvidenceEquRecordController extends BaseController
         ExcelUtil<EvidenceEquRecord> util = new ExcelUtil<EvidenceEquRecord>(EvidenceEquRecord.class);
         return util.exportExcel(list, "执法取证设备备案统计数据");
     }
+
+    /**
+
+     */
+    @RequestMapping("/detail/{ztlx}/{bmbm}")
+    @Encrypt
+    public String detail(@PathVariable("ztlx") String ztlx, @PathVariable("bmbm") String bmbm, ModelMap mmap) {
+        mmap.put("ztlx", ztlx);
+        mmap.put("bmbm", bmbm);
+        return prefix + "/detail";
+    }
+
+    /**  DynamicDataSourceContextHolder.setDataSourceType(DataSourceType.SLAVE.name());
+
+     */
+    //@RequiresPermissions("business:evidenceEquRecord:list")
+    // EvidenceEquRecordController.java
+    @RequestMapping("/detailList/{ztlx}/{bmbm}")
+    @ResponseBody
+//    @Encrypt
+    public TableDataInfo detailList(
+            PageDomain pageDomain,
+            @PathVariable("ztlx") String ztlx,
+            @PathVariable("bmbm") String bmbm
+    ) {
+        DynamicDataSourceContextHolder.setDataSourceType(DataSourceType.SLAVE.name());
+        try {
+            startPage();
+            List<DevVioEquipment> list;
+            if ("BA".equals(ztlx)) {
+                list = evidenceEquRecordService.selectDetailListForBA(bmbm);
+            } else if ("XZSP".equals(ztlx)) {
+                list = evidenceEquRecordService.selectTempDetailList(bmbm);
+            } else {
+                list = evidenceEquRecordService.selectDetailList(ztlx, bmbm);
+            }
+            return getDataTable(list);
+        } finally {
+            DynamicDataSourceContextHolder.clearDataSourceType();
+        }
+    }
+    // ^^^^^^ 方法替换结束 ^^^^^^
+}
+
 //
 //    /**
 //     * 导出执法取证设备备案统计数据
@@ -172,4 +221,4 @@ public class EvidenceEquRecordController extends BaseController
 //    {
 //        return toAjax(evidenceEquRecordService.deleteEvidenceEquRecordByIds(ids));
 //    }
-}
+
